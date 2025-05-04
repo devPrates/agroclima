@@ -8,7 +8,7 @@ export default function ContactSection() {
         {/* Image section - hidden on mobile, 1/3 width on desktop */}
         <div className="relative hidden md:block md:w-1/3 h-full">
           <Image
-            src="https://placehold.co/300x400"
+            src="/estacao-solar.jpeg"
             alt="Agricultor com morangos frescos"
             fill
             className="object-cover"
@@ -24,31 +24,18 @@ export default function ContactSection() {
           </div>
 
           <form className="space-y-4 flex-grow">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input
-                type="text"
-                placeholder="Your Name"
-                className="w-full px-4 py-3 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-[#6a9466]"
-              />
-              <input
-                type="tel"
-                placeholder="Phone Number"
-                className="w-full px-4 py-3 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-[#6a9466]"
-              />
-            </div>
+            <input
+              type="text"
+              placeholder="Your Name"
+              className="w-full px-4 py-3 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-[#6a9466]"
+            />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input
-                type="email"
-                placeholder="Email Address"
-                className="w-full px-4 py-3 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-[#6a9466]"
-              />
-              <input
-                type="text"
-                placeholder="Subject"
-                className="w-full px-4 py-3 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-[#6a9466]"
-              />
-            </div>
+            <input
+              type="email"
+              placeholder="Email Address"
+              className="w-full px-4 py-3 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-[#6a9466]"
+            />
+
 
             <textarea
               placeholder="Your message..."

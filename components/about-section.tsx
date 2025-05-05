@@ -17,12 +17,6 @@ export default function AboutSection() {
                                 className="h-auto w-full object-cover"
                             />
 
-                            {/* Stats box - positioned inside the image container */}
-                            <div className="absolute bottom-0 right-0 w-32 rounded-lg bg-white p-3 text-center sm:w-36 sm:p-4">
-                                <div className="bg-blue-300 p-2 rounded-lg">
-                                    <div className="mt-1 text-xs text-stone-700 sm:text-sm">Monitoramento Eficiente no Campo e na Cidade</div>
-                                </div>
-                            </div>
                         </div>
                     </div>
 

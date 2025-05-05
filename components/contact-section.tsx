@@ -4,13 +4,13 @@ import { Send } from "lucide-react"
 export default function ContactSection() {
   return (
     <section
-      className="w-full h-screen flex items-center justify-center py-4 px-4 md:px-0"
+      className="w-full md:h-screen flex items-center justify-center py-4 px-4 md:px-0 my-8 md:my-0"
       id="contact"
     >
       <div className="w-full h-full flex items-center justify-center">
         <div className="rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row w-full max-w-6xl mx-auto">
-          {/* Image section */}
-          <div className="relative md:w-1/3 h-[550px]">
+          {/* Image section - Oculta em telas menores */}
+          <div className="relative md:w-1/3 h-[550px] hidden md:block">
             <Image
               src="/estacao-solar.jpeg"
               alt="Estação meteorológica AgroClima"

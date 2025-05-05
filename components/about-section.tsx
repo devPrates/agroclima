@@ -20,9 +20,6 @@ export default function AboutSection() {
                             {/* Stats box - positioned inside the image container */}
                             <div className="absolute bottom-0 right-0 w-32 rounded-lg bg-white p-3 text-center sm:w-36 sm:p-4">
                                 <div className="bg-blue-300 p-2 rounded-lg">
-                                    <div className="text-3xl font-bold text-stone-800 sm:text-4xl">
-                                        <span className="text-blue-600">*</span>435<span className="text-xl">+</span>
-                                    </div>
                                     <div className="mt-1 text-xs text-stone-700 sm:text-sm">Monitoramento Eficiente no Campo e na Cidade</div>
                                 </div>
                             </div>

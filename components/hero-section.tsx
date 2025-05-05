@@ -8,13 +8,10 @@ import { fadeIn, textVariant, staggerContainer, buttonVariant } from "@/lib/moti
 export default function HeroSection() {
   const [isInView, setIsInView] = useState(true)
 
-  // Reset animation when scrolling back to top
   useEffect(() => {
     const handleScroll = () => {
-      // If user scrolls back to top, reset animation
       if (window.scrollY === 0) {
         setIsInView(false)
-        // Small timeout to trigger animation again
         setTimeout(() => setIsInView(true), 10)
       }
     }
@@ -24,58 +21,62 @@ export default function HeroSection() {
   }, [])
 
   return (
-    <section className="relative w-full h-screen flex flex-col lg:flex-row" id="home">
-      {/* Background with overlay for smaller screens */}
+    <section className="relative w-full h-screen" id="home">
+      {/* Background com overlay sempre ativo */}
       <div className="absolute inset-0 bg-hero-sm sm:bg-hero-md lg:bg-hero-lg bg-cover bg-center bg-no-repeat">
-        {/* Dark overlay for screens smaller than lg */}
-        <div className="absolute inset-0 bg-black/40 lg:bg-transparent"></div>
+        <div className="absolute inset-0 bg-black/40" />
       </div>
 
-      {/* Content container - first half */}
-      <motion.div
-        variants={staggerContainer()}
-        initial="hidden"
-        animate={isInView ? "visible" : "hidden"}
-        className="relative z-10 w-full lg:w-1/2 flex flex-col justify-center items-start p-8 md:p-12 lg:p-16"
-      >
-        <motion.h1 variants={textVariant(0.1)} className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
-          Título Principal
-        </motion.h1>
-
-        <motion.h2
-          variants={textVariant(0.3)}
-          className="text-xl md:text-2xl lg:text-3xl font-semibold text-white/90 mb-4"
-        >
-          Subtítulo Atrativo
-        </motion.h2>
-
-        <motion.p variants={fadeIn("up", 0.5)} className="text-base md:text-lg text-white/80 max-w-md mb-8">
-          Uma breve descrição que explica o propósito desta seção e convida o usuário a explorar mais sobre o que
-          estamos oferecendo. Este texto deve ser conciso e impactante.
-        </motion.p>
-
+      {/* Container principal centralizado */}
+      <div className="relative z-10 max-w-7xl mx-auto h-full flex flex-col lg:flex-row">
+        {/* Lado esquerdo - conteúdo sempre centralizado */}
         <motion.div
-          variants={staggerContainer(0.2)}
+          variants={staggerContainer()}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
-          className="flex flex-col sm:flex-row gap-4"
+          className="w-full lg:w-1/2 flex items-center justify-center h-full px-6 md:px-8 lg:px-12"
         >
-          <motion.div variants={buttonVariant(0.7)}>
-            <Button size="lg" className="bg-white text-black hover:bg-white/90">
-              Comece Agora
-            </Button>
-          </motion.div>
+          <div className="w-full flex flex-col items-center lg:items-start text-center lg:text-left">
+            <motion.h1 variants={textVariant(0.1)} className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
+              Soluções Climáticas para o Agronegócio
+            </motion.h1>
 
-          <motion.div variants={buttonVariant(0.9)}>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
-              Saiba Mais
-            </Button>
-          </motion.div>
+            <motion.h2
+              variants={textVariant(0.3)}
+              className="text-xl md:text-2xl lg:text-3xl font-semibold text-white/90 mb-4"
+            >
+              Estações Meteorológicas de Alta Precisão
+            </motion.h2>
+
+            <motion.p variants={fadeIn("up", 0.5)} className="text-base md:text-lg text-white/80 max-w-md mb-8">
+              A AgroClima oferece tecnologia de ponta para monitoramento climático em tempo real, ajudando produtores a
+              tomarem decisões mais inteligentes e eficientes.
+            </motion.p>
+
+            <motion.div
+              variants={staggerContainer(0.2)}
+              initial="hidden"
+              animate={isInView ? "visible" : "hidden"}
+              className="flex flex-col sm:flex-row gap-4"
+            >
+              <motion.div variants={buttonVariant(0.7)}>
+                <Button size="lg" className="bg-white text-black hover:bg-white/90">
+                  Solicite uma Demonstração
+                </Button>
+              </motion.div>
+
+              <motion.div variants={buttonVariant(0.9)}>
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+                  Conheça Nossas Soluções
+                </Button>
+              </motion.div>
+            </motion.div>
+          </div>
         </motion.div>
-      </motion.div>
 
-      {/* Second half - empty and hidden on screens smaller than lg */}
-      <div className="hidden lg:block lg:w-1/2"></div>
+        {/* Lado direito reservado para lg+ */}
+        <div className="hidden lg:block w-1/2"></div>
+      </div>
     </section>
   )
 }

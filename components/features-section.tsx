@@ -1,16 +1,16 @@
 import Image from "next/image"
-import { Leaf, Wheat, Carrot, Award } from "lucide-react"
+import { Cloud, Thermometer, MapPin, RefreshCcw } from "lucide-react"
 
 export default function FeatureSection() {
   return (
     <section className="w-full py-16 px-4 md:px-8 lg:px-16">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
-          <p className="text-sm text-gray-500 mb-2">Grow Naturally</p>
+          <p className="text-sm text-gray-500 mb-2">Monitoramento Climático Inteligente</p>
           <h2 className="text-3xl md:text-4xl font-medium text-[#3c4a3e]">
-            Choose What&apos;s Perfect
+            Soluções Perfeitas para o Campo e a Cidade
             <br />
-            For Your Field
+            Com Estações Meteorológicas Avançadas
           </h2>
         </div>
 
@@ -18,15 +18,15 @@ export default function FeatureSection() {
           {/* Left Features */}
           <div className="md:col-span-3 space-y-8">
             <FeatureCircle
-              icon={<Wheat className="h-6 w-6 text-[#3c4a3e]" />}
-              title="Agriculture Products"
-              description="Nullam porta enim vel tellus commodo, eget laoreet odio ultrices."
+              icon={<Cloud className="h-6 w-6 text-[#3c4a3e]" />}
+              title="Monitoramento Climático"
+              description="Nossas estações fornecem dados precisos sobre condições climáticas, ajudando a prever mudanças e otimizar a produção agrícola."
             />
 
             <FeatureCircle
-              icon={<Award className="h-6 w-6 text-[#3c4a3e]" />}
-              title="Quality Products"
-              description="Nullam porta enim vel tellus commodo, eget laoreet odio ultrices."
+              icon={<Thermometer className="h-6 w-6 text-[#3c4a3e]" />}
+              title="Temperatura e Umidade"
+              description="Monitoramento constante da temperatura e umidade para garantir o melhor ambiente para o crescimento de culturas e decisões rápidas."
             />
           </div>
 
@@ -34,7 +34,7 @@ export default function FeatureSection() {
           <div className="md:col-span-6 flex justify-center items-center">
             <Image
               src="/weather-station.png"
-              alt="Corn illustration"
+              alt="Estação Meteorológica"
               width={400}
               height={400}
               className="object-contain"
@@ -44,15 +44,15 @@ export default function FeatureSection() {
           {/* Right Features */}
           <div className="md:col-span-3 space-y-8">
             <FeatureCircle
-              icon={<Carrot className="h-6 w-6 text-[#3c4a3e]" />}
-              title="Fresh Vegetables"
-              description="Nullam porta enim vel tellus commodo, eget laoreet odio ultrices."
+              icon={<MapPin className="h-6 w-6 text-[#3c4a3e]" />}
+              title="Cobertura Global"
+              description="Estações instaladas em diversas regiões, permitindo monitoramento eficiente tanto para o campo quanto para áreas urbanas."
             />
 
             <FeatureCircle
-              icon={<Leaf className="h-6 w-6 text-[#3c4a3e]" />}
-              title="Pure & Organic"
-              description="Nullam porta enim vel tellus commodo, eget laoreet odio ultrices."
+              icon={<RefreshCcw className="h-6 w-6 text-[#3c4a3e]" />}
+              title="Atualizações em Tempo Real"
+              description="Acesso a dados em tempo real, permitindo respostas rápidas e ajustando estratégias conforme as condições climáticas."
             />
           </div>
         </div>
@@ -70,7 +70,7 @@ interface FeatureCircleProps {
 function FeatureCircle({ icon, title, description }: FeatureCircleProps) {
   return (
     <div className="flex flex-col items-center text-center">
-      <div className="flex-shrink-0 bg-[#f0e68c] rounded-full p-4 w-16 h-16 flex items-center justify-center mb-4">
+      <div className="flex-shrink-0 bg-blue-300 rounded-full p-4 w-16 h-16 flex items-center justify-center mb-4">
         {icon}
       </div>
       <h3 className="font-medium text-lg text-[#3c4a3e] mb-2">{title}</h3>

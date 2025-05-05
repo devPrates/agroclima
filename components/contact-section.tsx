@@ -4,51 +4,49 @@ import { Send } from "lucide-react"
 export default function ContactSection() {
   return (
     <section className="w-full h-screen flex items-center justify-center py-4" id="contact">
-      <div className=" rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row w-full max-w-6xl h-[80vh]">
-        {/* Image section - hidden on mobile, 1/3 width on desktop */}
-        <div className="relative hidden md:block md:w-1/3 h-full">
+      <div className="rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row w-full max-w-6xl">
+        {/* Image section - fixed size */}
+        <div className="relative md:w-1/3 h-[550px]"> {/* Definindo altura fixa para imagem */}
           <Image
             src="/estacao-solar.jpeg"
-            alt="Agricultor com morangos frescos"
-            fill
+            alt="Estação meteorológica AgroClima"
+            layout="fill"
             className="object-cover"
           />
         </div>
 
-        {/* Form section - full width on mobile, 2/3 width on desktop */}
-        <div className="p-6 md:p-10 md:w-2/3 bg-[#f9f9f4] h-full overflow-y-auto flex flex-col">
+        {/* Form section - fixed size */}
+        <div className="p-6 md:p-10 md:w-2/3 bg-[#f9f9f4] h-[550px] flex flex-col justify-between"> {/* Definindo altura fixa para o formulário */}
           <div className="mb-6 md:mb-8">
-            <p className="text-[#6a9466] text-sm font-medium mb-2">👋 Get To Contact Us</p>
-            <h2 className="text-3xl md:text-4xl font-semibold text-[#4a5a4a] mb-1">Have a any Questions?</h2>
-            <h2 className="text-3xl md:text-4xl font-semibold text-[#4a5a4a]">Get in Touch!</h2>
+            <p className="text-[#1e3a8a] text-sm font-medium mb-2">👋 Fale Conosco</p>
+            <h2 className="text-3xl md:text-4xl font-semibold text-[#2c3e50]">Entre em Contato Conosco!</h2>
           </div>
 
           <form className="space-y-4 flex-grow">
             <input
               type="text"
-              placeholder="Your Name"
-              className="w-full px-4 py-3 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-[#6a9466]"
+              placeholder="Seu Nome"
+              className="w-full px-4 py-3 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1e3a8a]"
             />
 
             <input
               type="email"
-              placeholder="Email Address"
-              className="w-full px-4 py-3 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-[#6a9466]"
+              placeholder="Endereço de E-mail"
+              className="w-full px-4 py-3 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1e3a8a]"
             />
 
-
             <textarea
-              placeholder="Your message..."
+              placeholder="Sua mensagem..."
               rows={6}
-              className="w-full px-4 py-3 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-[#6a9466]"
+              className="w-full px-4 py-3 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-[#1e3a8a]"
             ></textarea>
 
             <div className="pt-2">
               <button
                 type="submit"
-                className="flex items-center gap-2 bg-[#6a9466] text-white px-6 py-3 rounded-md hover:bg-[#5a8356] transition-colors"
+                className="flex items-center gap-2 bg-[#1e3a8a] text-white px-6 py-3 rounded-md hover:bg-[#2c4f8c] transition-colors"
               >
-                Send Message
+                Enviar Mensagem
                 <Send size={16} />
               </button>
             </div>

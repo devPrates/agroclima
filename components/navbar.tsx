@@ -15,7 +15,6 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  // Troca cor de fundo com base no scroll
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
@@ -24,7 +23,8 @@ export default function Navbar() {
       for (const item of menuItems) {
         const section = document.querySelector(item.href);
         if (section) {
-          const offsetTop = section.getBoundingClientRect().top + window.scrollY - 120;
+          const offsetTop =
+            section.getBoundingClientRect().top + window.scrollY - 120;
           if (scrollY >= offsetTop) {
             setActive(item.href);
           }
@@ -48,16 +48,16 @@ export default function Navbar() {
     <header
       className={clsx(
         "fixed top-0 left-0 w-full z-50 transition-colors duration-300",
-        isScrolled ? "bg-white shadow" : "bg-transparent"
+        isScrolled ? "bg-white dark:bg-gray-900 shadow" : "bg-transparent"
       )}
     >
       <nav className="max-w-7xl mx-auto flex items-center justify-between px-4 py-4">
-        <div className="text-xl font-bold text-gray-800">Logo</div>
+        <div className="text-xl font-bold text-black dark:text-white">Logo</div>
 
         <div className="md:hidden">
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="text-gray-800 text-2xl"
+            className="text-black dark:text-white text-2xl"
           >
             ☰
           </button>
@@ -69,10 +69,10 @@ export default function Navbar() {
               <button
                 onClick={() => handleClick(item.href)}
                 className={clsx(
-                  "text-sm font-medium transition",
+                  "text-base font-medium transition",
                   active === item.href
-                    ? "text-blue-600"
-                    : "text-gray-700 hover:text-blue-600"
+                    ? "text-blue-600 dark:text-blue-400"
+                    : "text-black dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
                 )}
               >
                 {item.name}
@@ -84,17 +84,17 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {mobileOpen && (
-        <div className="md:hidden px-4 pb-4 bg-white shadow">
+        <div className="md:hidden px-4 py-4 bg-white dark:bg-gray-900 shadow">
           <ul className="space-y-2">
             {menuItems.map((item) => (
               <li key={item.href}>
                 <button
                   onClick={() => handleClick(item.href)}
                   className={clsx(
-                    "block w-full text-left text-sm font-medium",
+                    "block w-full text-left text-base font-medium",
                     active === item.href
-                      ? "text-blue-600"
-                      : "text-gray-700 hover:text-blue-600"
+                      ? "text-blue-600 dark:text-blue-400"
+                      : "text-black dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
                   )}
                 >
                   {item.name}

@@ -3,7 +3,7 @@ import { Cloud, Thermometer, MapPin, RefreshCcw } from "lucide-react"
 
 export default function FeatureSection() {
   return (
-    <section className="w-full py-16 px-4 md:px-8 lg:px-16">
+    <section className="w-full py-16 px-4 md:px-8 lg:px-16" id="services">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
           <p className="text-sm text-gray-500 mb-2">Monitoramento Climático Inteligente</p>

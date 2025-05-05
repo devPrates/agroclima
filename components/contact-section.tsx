@@ -3,8 +3,11 @@ import { Send } from "lucide-react"
 
 export default function ContactSection() {
   return (
-    <section className="w-full flex items-center justify-center py-4 px-4 md:px-0" id="contact">
-      <div className="container mx-auto my-8 md:my-0">
+    <section
+      className="w-full h-screen flex items-center justify-center py-4 px-4 md:px-0"
+      id="contact"
+    >
+      <div className="w-full h-full flex items-center justify-center">
         <div className="rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row w-full max-w-6xl mx-auto">
           {/* Image section */}
           <div className="relative md:w-1/3 h-[550px]">

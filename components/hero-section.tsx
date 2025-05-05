@@ -60,13 +60,13 @@ export default function HeroSection() {
               className="flex flex-col sm:flex-row gap-4"
             >
               <motion.div variants={buttonVariant(0.7)}>
-                <Button size="lg" className="bg-white text-black hover:bg-white/90">
+                <Button >
                   Solicite uma Demonstração
                 </Button>
               </motion.div>
 
               <motion.div variants={buttonVariant(0.9)}>
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+                <Button variant={"outline"}>
                   Conheça Nossas Soluções
                 </Button>
               </motion.div>

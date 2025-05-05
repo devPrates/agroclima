@@ -13,8 +13,9 @@ export default function Home() {
   return (
     <main>
       <Navbar />
-
-      <HeroSection />
+      <div className="mt-14"> {/* 64px de padding top */}
+        <HeroSection />
+      </div>
       <BrandCarousel />
       <AboutSection />
       <FeatureSection />

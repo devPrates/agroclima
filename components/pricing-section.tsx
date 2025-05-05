@@ -4,7 +4,7 @@ import { Check } from "lucide-react";
 
 export default function PricingCard() {
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center py-12 px-6">
+    <section className="min-h-screen flex flex-col justify-center items-center py-12 px-6" id="pricing">
       <div className="text-center mb-10 pt-8">
         <h1 className="text-5xl font-extrabold text-gray-800 mb-4">Acesse a Plataforma AgroClima</h1>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -44,6 +44,6 @@ export default function PricingCard() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </section>
   );
 }

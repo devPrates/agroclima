@@ -3,7 +3,7 @@ import { Sprout, Tractor } from "lucide-react"
 
 export default function AboutSection() {
     return (
-        <section className="w-full py-16" id="about">
+        <section className="w-full h-full py-16" id="about">
             <div className="container mx-auto px-4">
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                     {/* Left column with image and stats */}

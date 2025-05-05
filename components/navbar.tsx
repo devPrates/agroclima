@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react";
 import clsx from "clsx";
+import Image from "next/image";
 
 const menuItems = [
-  { name: "Home", href: "#home" },
-  { name: "About", href: "#about" },
-  { name: "Services", href: "#services" },
-  { name: "Contact", href: "#contact" },
+  { name: "Inicio", href: "#home" },
+  { name: "Quem Somos", href: "#about" },
+  { name: "Serviços", href: "#services" },
+  { name: "Planos", href: "#pricing" },
+  { name: "Contato", href: "#contact" },
 ];
 
 export default function Navbar() {
@@ -47,12 +49,19 @@ export default function Navbar() {
   return (
     <header
       className={clsx(
-        "fixed top-0 left-0 w-full z-50 transition-colors duration-300",
-        isScrolled ? "bg-white dark:bg-gray-900 shadow" : "bg-transparent"
+        "fixed top-0 left-0 w-full z-50 transition-all duration-300 bg-white dark:bg-gray-900",
+        isScrolled && "shadow"
       )}
     >
       <nav className="max-w-7xl mx-auto flex items-center justify-between px-4 py-4">
-        <div className="text-xl font-bold text-black dark:text-white">Logo</div>
+        <div className="text-xl font-bold text-black dark:text-white">Agroclima.NET</div>
+        {/* <Image 
+          alt="Logo"
+          src="/agroclima2.png"
+          width={40}
+          height={40}
+        /> */}
+        
 
         <div className="md:hidden">
           <button

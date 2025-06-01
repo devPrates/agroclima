@@ -27,7 +27,7 @@ export function Footer() {
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="flex flex-col items-center text-center space-y-8">
+        <div className="flex flex-col items-center text-center space-y-8 max-w-4xl mx-auto">
           {/* Logo */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}

@@ -13,7 +13,7 @@ export function About() {
   return (
     <section id="about" ref={ref} className="py-20 bg-muted/50">
       <div className="container mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center max-w-6xl mx-auto">
           {/* Left Image */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}

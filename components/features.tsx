@@ -52,13 +52,13 @@ export function Features() {
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-3 gap-12 items-center">
+        <div className="grid lg:grid-cols-3 gap-8 lg:gap-12 items-center max-w-7xl mx-auto">
           {/* Left Features */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="space-y-8"
+            className="space-y-6 lg:space-y-8"
           >
             {leftFeatures.map((feature, index) => (
               <motion.div
@@ -103,7 +103,7 @@ export function Features() {
             initial={{ opacity: 0, x: 50 }}
             animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            className="space-y-8"
+            className="space-y-6 lg:space-y-8"
           >
             {rightFeatures.map((feature, index) => (
               <motion.div

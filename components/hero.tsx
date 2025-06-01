@@ -13,15 +13,18 @@ export function Hero() {
   }
 
   return (
-    <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section
+      id="hero"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 pb-16 md:pt-24 md:pb-20"
+    >
       {/* Background with different sizes */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-br from-green-50 via-blue-50 to-green-100 dark:from-gray-900 dark:via-blue-900 dark:to-gray-800" />
         <div className="absolute inset-0 bg-[url('/placeholder.svg?height=800&width=1200')] bg-cover bg-center opacity-10 sm:bg-[url('/placeholder.svg?height=600&width=800')] md:bg-[url('/placeholder.svg?height=1000&width=1600')]" />
       </div>
 
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <div className="container mx-auto px-4 py-8 md:py-12 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center max-w-7xl mx-auto">
           {/* Left Content */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -71,8 +74,8 @@ export function Hero() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="relative"
           >
-            <div className="grid grid-cols-2 gap-6">
-              <motion.div whileHover={{ scale: 1.05 }} className="bg-card p-6 rounded-lg shadow-lg border">
+            <div className="grid grid-cols-2 gap-4 sm:gap-6">
+              <motion.div whileHover={{ scale: 1.05 }} className="bg-card p-4 sm:p-6 rounded-lg shadow-lg border">
                 <Thermometer className="h-8 w-8 text-red-500 mb-4" />
                 <h3 className="font-semibold mb-2">Temperatura</h3>
                 <p className="text-sm text-muted-foreground text-justify">
@@ -80,19 +83,19 @@ export function Hero() {
                 </p>
               </motion.div>
 
-              <motion.div whileHover={{ scale: 1.05 }} className="bg-card p-6 rounded-lg shadow-lg border">
+              <motion.div whileHover={{ scale: 1.05 }} className="bg-card p-4 sm:p-6 rounded-lg shadow-lg border">
                 <Droplets className="h-8 w-8 text-blue-500 mb-4" />
                 <h3 className="font-semibold mb-2">Umidade</h3>
                 <p className="text-sm text-muted-foreground text-justify">Controle da umidade relativa do ar</p>
               </motion.div>
 
-              <motion.div whileHover={{ scale: 1.05 }} className="bg-card p-6 rounded-lg shadow-lg border">
+              <motion.div whileHover={{ scale: 1.05 }} className="bg-card p-4 sm:p-6 rounded-lg shadow-lg border">
                 <Cloud className="h-8 w-8 text-gray-500 mb-4" />
                 <h3 className="font-semibold mb-2">Precipitação</h3>
                 <p className="text-sm text-muted-foreground text-justify">Medição de chuva e precipitação</p>
               </motion.div>
 
-              <motion.div whileHover={{ scale: 1.05 }} className="bg-card p-6 rounded-lg shadow-lg border">
+              <motion.div whileHover={{ scale: 1.05 }} className="bg-card p-4 sm:p-6 rounded-lg shadow-lg border">
                 <ArrowRight className="h-8 w-8 text-green-500 mb-4" />
                 <h3 className="font-semibold mb-2">Vento</h3>
                 <p className="text-sm text-muted-foreground text-justify">Direção e velocidade do vento</p>

@@ -83,9 +83,9 @@ export function Navbar() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden"
+              className="md:hidden overflow-hidden"
             >
-              <div className="py-4 space-y-4">
+              <div className="py-4 space-y-4 px-4">
                 {menuItems.map((item) => (
                   <motion.button
                     key={item.name}

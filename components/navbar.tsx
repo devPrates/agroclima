@@ -6,6 +6,7 @@ import { Menu, X, Sun, Moon } from "lucide-react"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
+import clsx from "clsx"
 
 const menuItems = [
   { name: "Início", href: "#hero" },
@@ -18,10 +19,33 @@ const menuItems = [
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [activeSection, setActiveSection] = useState<string | null>(null)
   const { theme, setTheme } = useTheme()
 
   useEffect(() => {
     setMounted(true)
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(`#${entry.target.id}`)
+          }
+        })
+      },
+      {
+        root: null,
+        rootMargin: "0px",
+        threshold: 0.6,
+      }
+    )
+
+    menuItems.forEach((item) => {
+      const section = document.querySelector(item.href)
+      if (section) observer.observe(section)
+    })
+
+    return () => observer.disconnect()
   }, [])
 
   const scrollToSection = (href: string) => {
@@ -43,8 +67,9 @@ export function Navbar() {
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <motion.div whileHover={{ scale: 1.05 }} className="flex items-center">
-            <Image src="/logo-agroclima.png" alt="Agroclima.NET" width={120} height={40} className="h-8 w-auto" />
+          <motion.div whileHover={{ scale: 1.05 }} className="flex items-center space-x-2">
+            <Image src="/agroclima.png" alt="Agroclima.NET" width={120} height={40} className="h-8 w-auto" />
+            <h1 className="font-bold text-xl">Agroclima.NET</h1>
           </motion.div>
 
           {/* Desktop Menu */}
@@ -55,7 +80,12 @@ export function Navbar() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => scrollToSection(item.href)}
-                className="text-foreground hover:text-primary transition-colors"
+                className={clsx(
+                  "transition-colors",
+                  activeSection === item.href
+                    ? "text-primary font-semibold"
+                    : "text-foreground hover:text-primary"
+                )}
               >
                 {item.name}
               </motion.button>
@@ -91,7 +121,12 @@ export function Navbar() {
                     key={item.name}
                     whileHover={{ x: 10 }}
                     onClick={() => scrollToSection(item.href)}
-                    className="block w-full text-left text-foreground hover:text-primary transition-colors"
+                    className={clsx(
+                      "block w-full text-left transition-colors",
+                      activeSection === item.href
+                        ? "text-primary font-semibold"
+                        : "text-foreground hover:text-primary"
+                    )}
                   >
                     {item.name}
                   </motion.button>

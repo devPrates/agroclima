@@ -85,16 +85,10 @@ export function Hero() {
                   >
                     Meteorológicas
                   </motion.span>
-                  <motion.span
-                    className="block text-slate-700 dark:text-slate-300 text-3xl sm:text-4xl lg:text-5xl xl:text-6xl"
-                    variants={fadeIn}
-                  >
-                    Inteligentes
-                  </motion.span>
                 </motion.h1>
 
                 <motion.p
-                  className="text-lg sm:text-xl text-slate-600 dark:text-slate-400 max-w-lg mx-auto lg:mx-0 leading-relaxed"
+                  className="text-lg sm:text-xl text-slate-600 dark:text-white max-w-lg mx-auto lg:mx-0 leading-relaxed"
                   variants={fadeInUp}
                 >
                   Monitore o clima em tempo real com precisão profissional. Dados meteorológicos confiáveis para

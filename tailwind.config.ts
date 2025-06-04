@@ -14,6 +14,7 @@ const config: Config = {
 				"hero-mobile": "url('/placeholder.svg?height=800&width=1200')",
 				"hero-tablet": "url('/placeholder.svg?height=600&width=800')",
 				"hero-desktop": "url('/estacao.jpeg')",
+				"footer-desktop": "url('/global.jpg')",
 			},
 			colors: {
 				background: 'hsl(var(--background))',

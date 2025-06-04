@@ -23,7 +23,7 @@ export function Footer() {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-800 to-gray-700 dark:from-gray-950 dark:via-gray-900 dark:to-gray-800" />
-        <div className="absolute inset-0 bg-[url('/placeholder.svg?height=400&width=1200')] bg-cover bg-center opacity-10" />
+        <div className="absolute inset-0 bg-footer-desktop bg-cover bg-center opacity-10" />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
@@ -36,11 +36,11 @@ export function Footer() {
             viewport={{ once: true }}
           >
             <Image
-              src="/logo-agroclima.png"
+              src="/agroclima.png"
               alt="Agroclima.NET"
-              width={150}
-              height={50}
-              className="h-12 w-auto brightness-0 invert"
+              width={200}
+              height={200}
+              className="h-12 w-auto"
             />
           </motion.div>
 

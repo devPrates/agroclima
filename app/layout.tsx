@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Agroclima.NET - Estações Meteorológicas para Agronegócio",
+  title: "Agroclima.NET",
   description:
     "Soluções meteorológicas de alta precisão para agricultura moderna. Monitore temperatura, umidade, precipitação e vento em tempo real.",
     generator: 'v0.dev'

@@ -46,7 +46,7 @@ export function Features() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Recursos Avançados</h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-justify">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-center">
             Nossa estação meteorológica oferece tecnologia de ponta para monitoramento preciso e análise inteligente dos
             dados climáticos.
           </p>
@@ -90,7 +90,7 @@ export function Features() {
           >
             <div className="relative h-96 w-full">
               <Image
-                src="/placeholder.svg?height=400&width=300"
+                src="/weather-station.png"
                 alt="Estação Meteorológica Central"
                 fill
                 className="object-contain"

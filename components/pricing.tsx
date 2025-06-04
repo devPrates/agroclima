@@ -6,6 +6,7 @@ import { useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Check, Star } from "lucide-react"
+import Link from "next/link"
 
 export function Pricing() {
   const ref = useRef(null)
@@ -86,9 +87,11 @@ export function Pricing() {
               </CardContent>
 
               <CardFooter className="pt-6">
-                <Button size="lg" className="w-full" onClick={scrollToContact}>
-                  Solicitar Proposta
-                </Button>
+                <Link href={'/planos'} className="w-full flex justify-center">
+                  <Button size="lg"  onClick={scrollToContact}>
+                    Solicitar Proposta
+                  </Button>
+                </Link>
               </CardFooter>
             </Card>
           </motion.div>

@@ -15,14 +15,10 @@ export function Pricing() {
     "Estação meteorológica completa",
     "Sensores de temperatura e umidade",
     "Pluviômetro digital",
-    "Anemômetro (velocidade e direção do vento)",
-    "Transmissão de dados via IoT",
     "App mobile iOS e Android",
     "Dashboard web completo",
     "Relatórios personalizados",
-    "Alertas e notificações",
     "Suporte técnico 24/7",
-    "Garantia de 2 anos",
     "Instalação e treinamento inclusos",
   ]
 

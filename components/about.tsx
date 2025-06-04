@@ -21,25 +21,14 @@ export function About() {
             transition={{ duration: 0.8 }}
             className="relative"
           >
-            <div className="relative h-96 rounded-lg overflow-hidden shadow-2xl">
+            <div className="relative h-[34rem] rounded-lg overflow-hidden shadow-2xl">
               <Image
-                src="/placeholder.svg?height=400&width=600"
+                src="/estacao-solar.jpeg"
                 alt="Estação Meteorológica Agroclima"
                 fill
-                className="object-cover"
+                className="object-contains"
               />
             </div>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="absolute -bottom-6 -right-6 bg-primary text-primary-foreground p-6 rounded-lg shadow-lg"
-            >
-              <div className="text-center">
-                <div className="text-2xl font-bold">15+</div>
-                <div className="text-sm">Anos de Experiência</div>
-              </div>
-            </motion.div>
           </motion.div>
 
           {/* Right Content */}
@@ -65,7 +54,7 @@ export function About() {
               className="text-lg text-muted-foreground text-justify"
             >
               Somos uma empresa especializada em soluções meteorológicas para o agronegócio, localizada em Naviraí/MS.
-              Com mais de 15 anos de experiência no mercado, oferecemos estações meteorológicas de alta precisão que
+              Com mais de 05 anos de experiência no mercado, oferecemos estações meteorológicas de alta precisão que
               auxiliam produtores rurais na tomada de decisões estratégicas para suas culturas.
             </motion.p>
 
@@ -96,7 +85,7 @@ export function About() {
               <div className="flex items-center space-x-3">
                 <Users className="h-6 w-6 text-primary" />
                 <div>
-                  <div className="font-semibold">500+ Clientes</div>
+                  <div className="font-semibold">50+ Clientes</div>
                   <div className="text-sm text-muted-foreground">Satisfeitos</div>
                 </div>
               </div>

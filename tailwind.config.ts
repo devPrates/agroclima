@@ -11,8 +11,8 @@ const config: Config = {
 	theme: {
 		extend: {
 			backgroundImage: {
-				"hero-mobile": "url('/placeholder.svg?height=800&width=1200')",
-				"hero-tablet": "url('/placeholder.svg?height=600&width=800')",
+				"hero-mobile": "url('/hero-md.png')",
+				"hero-tablet": "url('/hero-md.png')",
 				"hero-desktop": "url('/estacao.jpeg')",
 				"footer-desktop": "url('/global.jpg')",
 			},

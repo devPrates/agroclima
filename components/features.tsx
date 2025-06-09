@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 import { useInView } from "framer-motion"
 import { useRef } from "react"
 import Image from "next/image"
-import { Wifi, Smartphone, BarChart3, Shield } from "lucide-react"
+import { Wifi, BarChart3, Shield, Cpu } from "lucide-react"
 
 export function Features() {
   const ref = useRef(null)
@@ -17,9 +17,9 @@ export function Features() {
       description: "Transmissão de dados em tempo real via internet, permitindo monitoramento remoto 24 horas por dia.",
     },
     {
-      icon: Smartphone,
-      title: "App Mobile",
-      description: "Aplicativo intuitivo para iOS e Android com notificações push e alertas personalizados.",
+      icon: Cpu,
+      title: "Central de Controle",
+      description: "Sistema integrado para gerenciamento e visualização centralizada das estações meteorológicas.",
     },
   ]
 

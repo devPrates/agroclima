@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 import { useInView } from "framer-motion"
 import { useRef } from "react"
 import Image from "next/image"
-import { Award, Users, MapPin, Calendar } from "lucide-react"
+import { Users, MapPin, Calendar, Cpu } from "lucide-react"
 
 export function About() {
   const ref = useRef(null)
@@ -76,10 +76,10 @@ export function About() {
               className="grid grid-cols-2 gap-6"
             >
               <div className="flex items-center space-x-3">
-                <Award className="h-6 w-6 text-primary" />
+                <Cpu className="h-6 w-6 text-primary" />
                 <div>
-                  <div className="font-semibold">Certificação ISO</div>
-                  <div className="text-sm text-muted-foreground">Qualidade garantida</div>
+                  <div className="font-semibold">Tecnologia de Ponta</div>
+                  <div className="text-sm text-muted-foreground">Equipamentos modernos</div>
                 </div>
               </div>
               <div className="flex items-center space-x-3">

@@ -88,7 +88,7 @@ export function Hero() {
                 </motion.h1>
 
                 <motion.p
-                  className="text-lg sm:text-xl text-slate-600 dark:text-white max-w-lg mx-auto lg:mx-0 leading-relaxed"
+                  className="text-lg sm:text-xl text-black text-justify dark:text-white max-w-lg mx-auto lg:mx-0 leading-relaxed"
                   variants={fadeInUp}
                 >
                   Monitore o clima em tempo real com precisão profissional. Dados meteorológicos confiáveis para

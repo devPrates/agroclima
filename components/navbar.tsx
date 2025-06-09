@@ -49,12 +49,16 @@ export function Navbar() {
   }, [])
 
   const scrollToSection = (href: string) => {
-    const element = document.querySelector(href)
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" })
-    }
+  const element = document.querySelector(href)
+  if (element) {
     setIsOpen(false)
+    setTimeout(() => {
+      const yOffset = -64 // Altura da navbar
+      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset
+      window.scrollTo({ top: y, behavior: "smooth" })
+    }, 200) // tempo suficiente para o AnimatePresence esconder o menu
   }
+}
 
   if (!mounted) return null
 
@@ -94,8 +98,6 @@ export function Navbar() {
             <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
               {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </Button>
-
-
           </div>
 
           {/* Mobile Menu Button */}

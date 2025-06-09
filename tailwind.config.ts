@@ -11,9 +11,9 @@ const config: Config = {
 	theme: {
 		extend: {
 			backgroundImage: {
-				"hero-mobile": "url('/background.png')",
+				"hero-mobile": "url('/hero-mobile.png')",
 				"hero-tablet": "url('/background.png')",
-				"hero-desktop": "url('/background.png')",
+				"hero-desktop": "url('/hero-desktop2.png')",
 				"footer-desktop": "url('/global.jpg')",
 			},
 			animation: {

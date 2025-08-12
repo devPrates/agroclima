@@ -4,34 +4,16 @@ import { motion } from "framer-motion"
 import { useInView } from "framer-motion"
 import { useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Check, Star } from "lucide-react"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
+import { plans } from "@/lib/data"
 
 export function Pricing() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true })
-
-  const features = [
-    "Estação meteorológica completa",
-    "Sensores de temperatura e umidade",
-    "Pluviômetro digital",
-    "App mobile iOS e Android",
-    "Dashboard web completo",
-    "Relatórios personalizados",
-    "Suporte técnico 24/7",
-    "Instalação e treinamento inclusos",
-  ]
-
-  const scrollToContact = () => {
-    const element = document.querySelector("#contact")
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" })
-    }
-  }
-
+  
   return (
-    <section id="pricing" ref={ref} className="py-20 bg-muted/50">
+    <section id="pricing" ref={ref} className="py-20 bg-background text-foreground">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -39,75 +21,64 @@ export function Pricing() {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Plano Anual</h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto text-justify">
-            Investimento completo em tecnologia meteorológica para sua propriedade rural. Tudo incluído em um único
-            plano anual.
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Planos</h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Escolha o plano que melhor se adapta às suas necessidades.
           </p>
         </motion.div>
 
-        <div className="flex justify-center">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="w-full max-w-lg"
-          >
-            <Card className="relative border-2 border-primary shadow-2xl">
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <div className="bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-semibold flex items-center">
-                  <Star className="h-4 w-4 mr-1" />
-                  Mais Popular
-                </div>
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {plans.map((plan, idx) => (
+            <motion.div
+              key={plan.title}
+              initial={{ opacity: 0, y: 50 }}
+              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+              transition={{ duration: 0.8, delay: idx * 0.2 }}
+              className="flex flex-col"
+            >
+              <Card className="flex flex-col justify-between h-full border border-border relative">
+                {plan.popular && (
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <div className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold shadow">
+                      Mais Popular
+                    </div>
+                  </div>
+                )}
 
-              <CardHeader className="text-center pt-8">
-                <CardTitle className="text-2xl font-bold">Estação Completa</CardTitle>
-                <CardDescription className="text-lg">Solução completa para monitoramento meteorológico</CardDescription>
-                <div className="mt-4">
-                  <div className="text-4xl font-bold text-primary">R$ 12.500</div>
-                  <div className="text-muted-foreground">/ano</div>
-                  <div className="text-sm text-muted-foreground mt-2">ou 12x de R$ 1.041,67</div>
-                </div>
-              </CardHeader>
+                <CardHeader className="pt-8 text-center">
+                  <CardTitle className="text-2xl font-bold">{plan.title}</CardTitle>
+                  <p className="text-muted-foreground mt-2">{plan.description}</p>
+                  <div className="mt-4">
+                    <div className="text-3xl font-bold">{plan.price}</div>
+                    {plan.pricePeriod && <div className="text-muted-foreground">{plan.pricePeriod}</div>}
+                    {plan.details && <div className="text-sm text-muted-foreground mt-2">{plan.details}</div>}
+                  </div>
+                </CardHeader>
 
-              <CardContent className="space-y-4">
-                {features.map((feature, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
-                    transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
-                    className="flex items-center space-x-3"
-                  >
-                    <Check className="h-5 w-5 text-primary flex-shrink-0" />
-                    <span className="text-sm text-justify">{feature}</span>
-                  </motion.div>
-                ))}
-              </CardContent>
+                <CardContent className="flex-1 space-y-3">
+                  {plan.features.map((feature, index) => (
+                    <div key={index} className="flex items-center space-x-3 text-sm">
+                      <feature.icon className="h-4 w-4 text-primary" />
+                      <span>{feature.text}</span>
+                    </div>
+                  ))}
+                </CardContent>
 
-              <CardFooter className="pt-6">
-                <Link href={'/planos'} className="w-full flex justify-center">
-                  <Button size="lg"  onClick={scrollToContact}>
-                    Solicitar Proposta
-                  </Button>
-                </Link>
-              </CardFooter>
-            </Card>
-          </motion.div>
+                <CardFooter className="mt-6">
+                  <Link href="/planos" className="w-full">
+                    <Button
+                      variant={plan.buttonVariant}
+                      size="lg"
+                      className="w-full"
+                    >
+                      {plan.buttonText}
+                    </Button>
+                  </Link>
+                </CardFooter>
+              </Card>
+            </motion.div>
+          ))}
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="text-center mt-8"
-        >
-          <p className="text-muted-foreground text-justify max-w-2xl mx-auto">
-            * Preço inclui equipamento, instalação, configuração, treinamento e suporte técnico. Condições especiais
-            para múltiplas estações. Entre em contato para orçamento personalizado.
-          </p>
-        </motion.div>
       </div>
     </section>
   )

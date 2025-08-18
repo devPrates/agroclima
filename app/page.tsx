@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect } from "react"
-import { useSearchParams } from "next/navigation"
 import { Hero } from "@/components/hero"
 import { About } from "@/components/about"
 import { Features } from "@/components/features"
@@ -12,8 +11,6 @@ import BrandCarousel from "@/components/brand-carousel"
 import ChatBot from "@/components/chat-bot"
 
 export default function Home() {
-  const searchParams = useSearchParams()
-  
   useEffect(() => {
     // Verificar se há um hash na URL para fazer scroll automático
     const hash = window.location.hash
@@ -27,7 +24,7 @@ export default function Home() {
         }
       }, 100) // Pequeno delay para garantir que os componentes foram renderizados
     }
-  }, [searchParams])
+  }, [])
   
   return (
     <main className="min-h-screen">

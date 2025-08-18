@@ -27,6 +27,14 @@ export function Navbar() {
 
   useEffect(() => {
     setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    // Só configurar o observer na rota principal
+    if (pathname !== '/') {
+      setActiveSection(null)
+      return
+    }
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -49,14 +57,23 @@ export function Navbar() {
     })
 
     return () => observer.disconnect()
-  }, [])
+  }, [pathname])
 
   const scrollToSection = (href: string) => {
     setIsOpen(false)
     
-    // Se não estiver na rota principal, navegar para ela com o hash
+    // Se não estiver na rota principal, navegar para ela primeiro
     if (pathname !== '/') {
-      router.push(`/${href}`)
+      router.push('/')
+      // Aguardar a navegação e então fazer o scroll
+      setTimeout(() => {
+        const element = document.querySelector(href)
+        if (element) {
+          const yOffset = -64 // Altura da navbar
+          const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset
+          window.scrollTo({ top: y, behavior: "smooth" })
+        }
+      }, 300) // tempo para a navegação completar
       return
     }
     

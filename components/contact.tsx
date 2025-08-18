@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/form"
 import { MapPin, Phone, Mail, Clock } from "lucide-react"
 import { toast } from "sonner"
+import { sendContactEmail, type ContactFormData } from "@/actions/contact-actions"
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -52,17 +53,27 @@ export function Contact() {
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Handle form submission here
-    console.log("Form submitted:", values)
-    
-    // Reset form
-    form.reset()
-    
-    // Show success toast
-    toast.success("Mensagem enviada com sucesso!", {
-      description: "Em breve entraremos em contato com você.",
-    })
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const result = await sendContactEmail(values as ContactFormData)
+
+      if (!result.success) {
+        throw new Error(result.error || 'Erro ao enviar mensagem')
+      }
+
+      // Reset form
+      form.reset()
+      
+      // Show success toast
+      toast.success("Mensagem enviada com sucesso!", {
+        description: "Em breve entraremos em contato com você.",
+      })
+    } catch (error) {
+      console.error('Erro ao enviar mensagem:', error)
+      toast.error("Erro ao enviar mensagem", {
+        description: "Tente novamente mais tarde ou entre em contato diretamente.",
+      })
+    }
   }
 
   const contactInfo = [

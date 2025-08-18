@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Menu, X, Sun, Moon } from "lucide-react"
 import { useTheme } from "next-themes"
+import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import clsx from "clsx"
@@ -21,6 +22,8 @@ export function Navbar() {
   const [mounted, setMounted] = useState(false)
   const [activeSection, setActiveSection] = useState<string | null>(null)
   const { theme, setTheme } = useTheme()
+  const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     setMounted(true)
@@ -49,16 +52,24 @@ export function Navbar() {
   }, [])
 
   const scrollToSection = (href: string) => {
-  const element = document.querySelector(href)
-  if (element) {
     setIsOpen(false)
-    setTimeout(() => {
-      const yOffset = -64 // Altura da navbar
-      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset
-      window.scrollTo({ top: y, behavior: "smooth" })
-    }, 200) // tempo suficiente para o AnimatePresence esconder o menu
+    
+    // Se não estiver na rota principal, navegar para ela com o hash
+    if (pathname !== '/') {
+      router.push(`/${href}`)
+      return
+    }
+    
+    // Se estiver na rota principal, fazer scroll para a seção
+    const element = document.querySelector(href)
+    if (element) {
+      setTimeout(() => {
+        const yOffset = -64 // Altura da navbar
+        const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset
+        window.scrollTo({ top: y, behavior: "smooth" })
+      }, 200) // tempo suficiente para o AnimatePresence esconder o menu
+    }
   }
-}
 
   if (!mounted) return null
 

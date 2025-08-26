@@ -81,7 +81,7 @@ export function Footer() {
             className="space-y-2 text-gray-400"
           >
             <p>&copy; {new Date().getFullYear()} Agroclima.NET. Todos os direitos reservados.</p>
-            <p className="text-sm">Desenvolvido por v0</p>
+            <p className="text-sm">Desenvolvido por Agroclima.NET</p>
           </motion.div>
         </div>
       </div>

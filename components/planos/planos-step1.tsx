@@ -9,9 +9,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Form, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Loader2 } from "lucide-react"
+import { Loader2, CheckCircle, ExternalLink } from "lucide-react"
 import { criarConta } from "@/actions/planos-actions"
 import { PlanoData } from "@/actions/planos-actions"
+import { toast } from "sonner"
 
 
 
@@ -38,6 +39,7 @@ interface PlanosStep1Props {
 export function PlanosStep1({ onComplete }: PlanosStep1Props) {
   const [isLoading, setIsLoading] = useState(false)
   const [precoTotal, setPrecoTotal] = useState(0)
+  const [showSuccess, setShowSuccess] = useState(false)
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -70,17 +72,33 @@ export function PlanosStep1({ onComplete }: PlanosStep1Props) {
     setIsLoading(true)
 
     try {
-      await criarConta({
+      const result = await criarConta({
         ...data,
         precoTotal,
       })
 
-      onComplete({
-        ...data,
-        precoTotal,
-      })
-    } catch (error) {
+      // Para plano gratuito, mostrar tela de sucesso
+      if (data.plano === "Gratuito") {
+        toast.success("Conta criada com sucesso!", {
+          description: "Sua conta gratuita foi criada. Agora você pode fazer login.",
+          duration: 5000,
+        })
+        setShowSuccess(true)
+      } else {
+        // Para outros planos, continuar com o fluxo normal
+        onComplete({
+          ...data,
+          precoTotal,
+        })
+      }
+    } catch (error: any) {
       console.error("Erro ao criar conta:", error)
+      
+      // Mostrar toast de erro
+      toast.error("Erro ao criar conta", {
+        description: error.message || "Ocorreu um erro inesperado. Tente novamente.",
+        duration: 5000,
+      })
     } finally {
       setIsLoading(false)
     }
@@ -96,6 +114,51 @@ export function PlanosStep1({ onComplete }: PlanosStep1Props) {
       default:
         return "Continuar"
     }
+  }
+
+  // Tela de sucesso para plano gratuito
+  if (showSuccess) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-center text-2xl flex items-center justify-center gap-2">
+            <CheckCircle className="h-8 w-8 text-green-500" />
+            Conta Criada com Sucesso!
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-center space-y-4">
+          <div className="space-y-2">
+            <p className="text-lg text-muted-foreground">
+              Sua conta gratuita foi criada com sucesso!
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Agora você pode fazer login e começar a usar o AgroClima.
+            </p>
+          </div>
+          
+          <div className="pt-4">
+            <Button 
+              onClick={() => window.open('https://agroclima.net/login', '_blank')}
+              className="w-full"
+              size="lg"
+            >
+              <ExternalLink className="mr-2 h-4 w-4" />
+              Ir para Login
+            </Button>
+          </div>
+          
+          <div className="pt-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowSuccess(false)}
+              className="w-full"
+            >
+              Criar Outra Conta
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (

@@ -123,9 +123,15 @@ export function Navbar() {
               </motion.button>
             ))}
 
-            <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-              {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </Button>
+            <div className="flex items-center space-x-2 ml-8">
+              <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+                {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </Button>
+              
+              <Button variant="default" size="sm">
+                Entrar
+              </Button>
+            </div>
           </div>
 
           {/* Mobile Menu Button */}
@@ -164,6 +170,12 @@ export function Navbar() {
                     {item.name}
                   </motion.button>
                 ))}
+                
+                <div className="pt-4 border-t">
+                  <Button variant="default" size="sm" className="w-full">
+                    Entrar
+                  </Button>
+                </div>
               </div>
             </motion.div>
           )}

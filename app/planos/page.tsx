@@ -15,7 +15,7 @@ export default function PlanosPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-12 px-4">
+    <div className="min-h-screen bg-background pt-24 pb-32 px-4 md:pt-28 lg:pt-32">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-foreground mb-2">Escolha seu Plano</h1>

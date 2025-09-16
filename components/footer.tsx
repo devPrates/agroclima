@@ -19,7 +19,7 @@ export function Footer() {
   }
 
   return (
-    <footer className="relative py-16 overflow-hidden">
+    <footer className="relative pt-20 pb-16 overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-800 to-gray-700 dark:from-gray-950 dark:via-gray-900 dark:to-gray-800" />

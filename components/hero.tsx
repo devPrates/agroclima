@@ -2,8 +2,9 @@
 
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Thermometer, CloudRain, Wind, BarChart3, ChevronRight, Wifi } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 import { fadeIn, fadeInUp, staggerContainer, staggerItem } from "@/lib/animations"
+import { WeatherTable } from "@/components/weather-table"
 
 export function Hero() {
   const scrollToContact = () => {
@@ -12,37 +13,6 @@ export function Hero() {
       element.scrollIntoView({ behavior: "smooth" })
     }
   }
-
-  const weatherData = [
-    {
-      icon: Thermometer,
-      label: "Temperatura",
-      value: "24.5°C",
-      color: "from-red-400 to-orange-400",
-      bg: "from-red-50/80 to-orange-50/80 dark:from-red-950/30 dark:to-orange-950/30",
-    },
-    {
-      icon: CloudRain,
-      label: "Umidade",
-      value: "68%",
-      color: "from-blue-400 to-cyan-400",
-      bg: "from-blue-50/80 to-cyan-50/80 dark:from-blue-950/30 dark:to-cyan-950/30",
-    },
-    {
-      icon: Wind,
-      label: "Vento",
-      value: "12 km/h",
-      color: "from-green-400 to-emerald-400",
-      bg: "from-green-50/80 to-emerald-50/80 dark:from-green-950/30 dark:to-emerald-950/30",
-    },
-    {
-      icon: BarChart3,
-      label: "Pressão",
-      value: "1013 hPa",
-      color: "from-purple-400 to-violet-400",
-      bg: "from-purple-50/80 to-violet-50/80 dark:from-purple-950/30 dark:to-violet-950/30",
-    },
-  ]
 
   return (
     <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20 pb-16 md:pt-24 md:pb-20">
@@ -125,86 +95,12 @@ export function Hero() {
 
           <motion.div className="relative mt-8 lg:mt-0 flex justify-end" initial="hidden" animate="visible" variants={fadeIn}>
             <motion.div className="relative w-full" variants={fadeInUp}>
-              {/* Glass Effect Background */}
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-br from-white/30 via-white/20 to-white/10 dark:from-white/10 dark:via-white/5 dark:to-transparent backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-white/30 dark:border-white/10 shadow-2xl"
-                variants={fadeIn}
+              {/* Componente WeatherTable integrado */}
+              <WeatherTable 
+                autoFetch={true}
+                showRefreshButton={true}
+                className="max-w-md lg:max-w-none mx-auto"
               />
-
-              {/* Secondary Glass Layer */}
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 via-transparent to-cyan-500/10 dark:from-blue-400/5 dark:to-cyan-400/5 rounded-2xl sm:rounded-3xl"
-                variants={fadeIn}
-              />
-
-              {/* Main Card Content */}
-              <motion.div
-                className="relative backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 mx-auto max-w-md lg:max-w-none"
-                variants={fadeIn}
-              >
-                {/* Header */}
-                <motion.div className="flex items-center justify-between mb-4 sm:mb-6" variants={staggerItem}>
-                  <div>
-                    <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100">
-                      Estação Meteorológica
-                    </h3>
-                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">Naviraí/MS - Online</p>
-                  </div>
-                  <motion.div className="relative" variants={fadeIn}>
-                    <div className="w-10 sm:w-12 h-10 sm:h-12 bg-gradient-to-r from-emerald-500 to-green-500 dark:from-emerald-400 dark:to-green-400 rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm">
-                      <Wifi className="h-5 sm:h-6 w-5 sm:w-6 text-white" />
-                    </div>
-                    <div className="absolute -top-1 -right-1 w-3 sm:w-4 h-3 sm:h-4 bg-green-400 rounded-full border-2 border-white dark:border-gray-800 animate-pulse shadow-lg"></div>
-                  </motion.div>
-                </motion.div>
-
-                {/* Weather Data Grid */}
-                <motion.div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6" variants={staggerContainer}>
-                  {weatherData.map((item, index) => (
-                    <motion.div
-                      key={index}
-                      className={`relative p-3 sm:p-4 rounded-lg sm:rounded-xl backdrop-blur-sm border border-white/40 dark:border-white/10 shadow-lg overflow-hidden`}
-                      variants={staggerItem}
-                    >
-                      {/* Glass Background */}
-                      <div className={`absolute inset-0 bg-gradient-to-br ${item.bg} backdrop-blur-sm`} />
-
-                      {/* Content */}
-                      <div className="relative z-10">
-                        <div
-                          className={`w-6 sm:w-8 h-6 sm:h-8 bg-gradient-to-r ${item.color} rounded-lg flex items-center justify-center mb-2 sm:mb-3 shadow-lg backdrop-blur-sm`}
-                        >
-                          <item.icon className="h-3 sm:h-4 w-3 sm:w-4 text-white" />
-                        </div>
-                        <div className="text-xs text-slate-600 dark:text-slate-300 font-medium mb-1">{item.label}</div>
-                        <div className="text-sm sm:text-lg font-bold text-slate-900 dark:text-slate-100">
-                          {item.value}
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </motion.div>
-
-                {/* Status */}
-                <motion.div
-                  className="relative text-center p-3 sm:p-4 rounded-lg sm:rounded-xl border border-green-200/60 dark:border-green-800/40 backdrop-blur-sm shadow-lg overflow-hidden"
-                  variants={staggerItem}
-                >
-                  {/* Glass Background */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-green-50/80 to-emerald-50/80 dark:from-green-950/30 dark:to-emerald-950/30 backdrop-blur-sm" />
-
-                  {/* Content */}
-                  <div className="relative z-10">
-                    <div className="flex items-center justify-center space-x-2 mb-1">
-                      <div className="w-2 h-2 bg-green-500 dark:bg-green-400 rounded-full animate-pulse shadow-lg"></div>
-                      <span className="text-xs sm:text-sm font-medium text-green-700 dark:text-green-300">
-                        Sistema Online
-                      </span>
-                    </div>
-                    <div className="text-xs text-green-600 dark:text-green-400">Última atualização: agora mesmo</div>
-                  </div>
-                </motion.div>
-              </motion.div>
             </motion.div>
           </motion.div>
         </div>

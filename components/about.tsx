@@ -51,7 +51,7 @@ export function About() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ duration: 0.8, delay: 0.6 }}
-              className="text-lg text-muted-foreground text-justify"
+              className="text-lg text-muted-foreground text-justify md:text-left"
             >
               Somos uma empresa especializada em soluções meteorológicas para o agronegócio, localizada em Naviraí/MS.
               Com mais de 05 anos de experiência no mercado, oferecemos estações meteorológicas de alta precisão que
@@ -62,7 +62,7 @@ export function About() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ duration: 0.8, delay: 0.8 }}
-              className="text-lg text-muted-foreground text-justify"
+              className="text-lg text-muted-foreground text-justify md:text-left"
             >
               Nossa missão é democratizar o acesso à informação meteorológica de qualidade, contribuindo para uma
               agricultura mais sustentável e produtiva. Utilizamos tecnologia de ponta para fornecer dados precisos e em

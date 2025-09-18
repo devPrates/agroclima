@@ -22,23 +22,22 @@ export function Hero() {
       </div>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+        <div className="flex flex-col gap-12 lg:gap-16 items-center">
           <motion.div
-            className="space-y-6 sm:space-y-8 text-center lg:text-left"
+            className="space-y-8 sm:space-y-10 text-center"
             initial="hidden"
             animate="visible"
             variants={staggerContainer}
           >
             <motion.div className="space-y-4 sm:space-y-6" variants={staggerItem}>
               <motion.div
-                className="inline-flex items-center px-3 sm:px-4 py-2 rounded-full bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-blue-200/50 dark:border-blue-800/50 shadow-lg mx-auto lg:mx-0"
+                className="inline-flex items-center px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800 mx-auto"
                 variants={fadeIn}
               >
-                <div className="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full mr-2 sm:mr-3 animate-pulse"></div>
-                <span className="text-xs sm:text-sm font-medium text-blue-700 dark:text-blue-300">
-                  Tecnologia Meteorológica Avançada
+                <div className="w-2 h-2 bg-blue-500 rounded-full mr-3" />
+                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                  Agroclima • Tecnologia Meteorológica Avançada
                 </span>
-                <div className="ml-2 sm:ml-3 text-blue-500 dark:text-blue-400">🌦️</div>
               </motion.div>
 
               <motion.div className="space-y-3 sm:space-y-4" variants={staggerItem}>
@@ -58,7 +57,7 @@ export function Hero() {
                 </motion.h1>
 
                 <motion.p
-                  className="text-lg sm:text-xl text-black text-justify dark:text-white max-w-lg mx-auto lg:mx-0 leading-relaxed"
+                  className="text-lg sm:text-xl text-slate-700 dark:text-slate-300 text-center mx-auto leading-relaxed max-w-3xl"
                   variants={fadeInUp}
                 >
                   Monitore o clima em tempo real com precisão profissional. Dados meteorológicos confiáveis para
@@ -68,24 +67,21 @@ export function Hero() {
             </motion.div>
 
             <motion.div
-              className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start"
+              className="flex flex-col sm:flex-row gap-4 justify-center"
               variants={staggerItem}
             >
-              <motion.div variants={fadeIn} className="w-full sm:w-auto">
+              <motion.div variants={fadeIn}>
                 <Button
                   size="lg"
-                  className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 dark:from-blue-500 dark:to-cyan-500 dark:hover:from-blue-600 dark:hover:to-cyan-600 text-white shadow-xl shadow-blue-500/25 border-0 px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-medium"
                   onClick={() => scrollToContact()}
                 >
                   Explorar Produtos
-                  <ChevronRight className="ml-2 h-4 sm:h-5 w-4 sm:w-5" />
                 </Button>
               </motion.div>
-              <motion.div variants={fadeIn} className="w-full sm:w-auto">
+              <motion.div variants={fadeIn}>
                 <Button
                   variant="outline"
                   size="lg"
-                  className="w-full sm:w-auto border-2 border-slate-200 dark:border-slate-700 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm text-slate-700 dark:text-slate-300 hover:bg-white/80 dark:hover:bg-gray-800/80 hover:border-blue-300 dark:hover:border-blue-700 shadow-lg px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-medium"
                 >
                   Solicitar Demo
                 </Button>
@@ -93,13 +89,13 @@ export function Hero() {
             </motion.div>
           </motion.div>
 
-          <motion.div className="relative mt-8 lg:mt-0 flex justify-end" initial="hidden" animate="visible" variants={fadeIn}>
+          <motion.div className="relative flex justify-center" initial="hidden" animate="visible" variants={fadeIn}>
             <motion.div className="relative w-full" variants={fadeInUp}>
               {/* Componente WeatherTable integrado */}
               <WeatherTable 
                 autoFetch={true}
                 showRefreshButton={true}
-                className="max-w-md lg:max-w-none mx-auto"
+                className="w-full"
               />
             </motion.div>
           </motion.div>

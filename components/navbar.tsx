@@ -101,7 +101,7 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           <motion.div whileHover={{ scale: 1.05 }} className="flex items-center space-x-2">
             <Image src="/agroclima.png" alt="Agroclima.NET" width={120} height={40} className="h-8 w-auto" />
-            <h1 className="font-bold text-xl">Agroclima.NET</h1>
+            <div className="font-bold text-xl">Agroclima.NET</div>
           </motion.div>
 
           {/* Desktop Menu */}

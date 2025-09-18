@@ -6,6 +6,7 @@ import { About } from "@/components/about"
 import { Features } from "@/components/features"
 import { Pricing } from "@/components/pricing"
 import { Contact } from "@/components/contact"
+import { ScrollIndicator } from "@/components/scroll-indicator"
 
 import BrandCarousel from "@/components/brand-carousel"
 import ChatBot from "@/components/chat-bot"
@@ -35,6 +36,7 @@ export default function Home() {
       <Pricing />
       <Contact />
       <ChatBot />
+      <ScrollIndicator />
     </main>
   )
 }

@@ -20,7 +20,26 @@ const fallbackWeatherData: WeatherData = {
   windSpeed: 12,
   pressure: 1013,
   description: 'Tempo estável',
-  city: 'Naviraí, MS'
+  city: 'Naviraí, MS',
+  feelsLike: 31,
+  uvIndex: 7,
+  visibility: 10,
+  dewPoint: 18,
+  cloudCover: 25,
+  precipitationProbability: 10,
+  airQuality: {
+    aqi: 45,
+    level: 'Boa',
+    pm25: 15,
+    pm10: 25
+  },
+  dailyStats: {
+    tempMin: 22,
+    tempMax: 32,
+    sunrise: '06:15:00',
+    sunset: '18:45:00'
+  },
+  lastUpdated: new Date().toLocaleString('pt-BR')
 };
 
 export function useWeather(autoFetch: boolean = true): UseWeatherReturn {

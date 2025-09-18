@@ -49,7 +49,7 @@ export function PlanosStep1({ onComplete }: PlanosStep1Props) {
       senha: "",
       confirmarSenha: "",
       plano: "Gratuito",
-      sessoes: 2, // iniciando com 2 sessões para o cálculo correto
+      sessoes: 3, // iniciando com 3 sessões como padrão
     },
   })
 
@@ -59,11 +59,16 @@ export function PlanosStep1({ onComplete }: PlanosStep1Props) {
   useEffect(() => {
     let preco = 0
     if (planoSelecionado === "Individual") {
-      preco = 1000
+      preco = 25
     } else if (planoSelecionado === "Personalizado") {
-      const precoBase = 1050 // preço do plano individual + R$ 50
-      const sessoesExtras = Math.max(0, (sessoes || 2) - 2) // sessões além das 2 incluídas
-      preco = precoBase + sessoesExtras * 50
+      // Preços fixos baseados no número de sessões
+      if (sessoes === 3) {
+        preco = 60
+      } else if (sessoes === 5) {
+        preco = 70
+      } else {
+        preco = 60 // padrão para 3 sessões
+      }
     }
     setPrecoTotal(preco)
   }, [planoSelecionado, sessoes])
@@ -119,14 +124,14 @@ export function PlanosStep1({ onComplete }: PlanosStep1Props) {
   // Tela de sucesso para plano gratuito
   if (showSuccess) {
     return (
-      <Card>
-        <CardHeader>
+      <Card className="w-full max-w-2xl mx-auto shadow-lg">
+        <CardHeader className="px-6 py-6">
           <CardTitle className="text-center text-2xl flex items-center justify-center gap-2">
             <CheckCircle className="h-8 w-8 text-green-500" />
             Conta Criada com Sucesso!
           </CardTitle>
         </CardHeader>
-        <CardContent className="text-center space-y-4">
+        <CardContent className="text-center space-y-4 px-6 pb-6">
           <div className="space-y-2">
             <p className="text-lg text-muted-foreground">
               Sua conta gratuita foi criada com sucesso!
@@ -138,7 +143,7 @@ export function PlanosStep1({ onComplete }: PlanosStep1Props) {
           
           <div className="pt-4">
             <Button 
-              onClick={() => window.open('https://agroclima.net/login', '_blank')}
+              onClick={() => window.open('https://agroclima.net', '_blank')}
               className="w-full"
               size="lg"
             >
@@ -162,14 +167,14 @@ export function PlanosStep1({ onComplete }: PlanosStep1Props) {
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="w-full max-w-4xl mx-auto shadow-lg">
+      <CardHeader className="px-6 py-6">
         <CardTitle className="text-center text-2xl">Dados de Cadastro</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-6 pb-6">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="nome"
@@ -177,9 +182,9 @@ export function PlanosStep1({ onComplete }: PlanosStep1Props) {
                   <FormItem>
                     <FormLabel>Nome</FormLabel>
                     <div className="min-h-[40px]">
-                      <Input placeholder="Seu nome completo" {...field} />
+                      <Input placeholder="Seu nome completo" className="w-full" {...field} />
                     </div>
-                    <div className="min-h-[16px]">
+                    <div className="min-h-[20px]">
                       <FormMessage />
                     </div>
                   </FormItem>
@@ -193,7 +198,7 @@ export function PlanosStep1({ onComplete }: PlanosStep1Props) {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <div className="min-h-[40px]">
-                      <Input type="email" placeholder="seu@email.com" {...field} />
+                      <Input type="email" placeholder="seu@email.com" className="w-full" {...field} />
                     </div>
                     <div className="min-h-[16px]">
                       <FormMessage />
@@ -203,7 +208,7 @@ export function PlanosStep1({ onComplete }: PlanosStep1Props) {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="senha"
@@ -211,7 +216,7 @@ export function PlanosStep1({ onComplete }: PlanosStep1Props) {
                   <FormItem>
                     <FormLabel>Senha</FormLabel>
                     <div className="min-h-[40px]">
-                      <Input type="password" placeholder="Sua senha" {...field} />
+                      <Input type="password" placeholder="Sua senha" className="w-full" {...field} />
                     </div>
                     <div className="min-h-[16px]">
                       <FormMessage />
@@ -227,7 +232,7 @@ export function PlanosStep1({ onComplete }: PlanosStep1Props) {
                   <FormItem>
                     <FormLabel>Confirmar Senha</FormLabel>
                     <div className="min-h-[40px]">
-                      <Input type="password" placeholder="Confirme sua senha" {...field} />
+                      <Input type="password" placeholder="Confirme sua senha" className="w-full" {...field} />
                     </div>
                     <div className="min-h-[16px]">
                       <FormMessage />
@@ -237,7 +242,7 @@ export function PlanosStep1({ onComplete }: PlanosStep1Props) {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="plano"
@@ -245,11 +250,9 @@ export function PlanosStep1({ onComplete }: PlanosStep1Props) {
                   <FormItem>
                     <FormLabel>Plano</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <div className="min-h-[40px]">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione um plano" />
-                        </SelectTrigger>
-                      </div>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Selecione um plano" />
+                      </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="Gratuito">Gratuito</SelectItem>
                         <SelectItem value="Individual">Individual</SelectItem>
@@ -270,19 +273,19 @@ export function PlanosStep1({ onComplete }: PlanosStep1Props) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Número de Sessões</FormLabel>
-                      <div className="min-h-[40px]">
-                        <Input
-                          type="number"
-                          min="2"
-                          placeholder="2"
-                          name={field.name}
-                          value={field.value?.toString() || "2"}
-                          onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 2)}
-                          onBlur={field.onBlur}
-                          ref={field.ref}
-                        />
-                      </div>
-                      <div className="min-h-[16px]">
+                      <Select 
+                        onValueChange={(value) => field.onChange(Number(value))} 
+                        value={field.value?.toString() || "3"}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Selecione o número de sessões" />
+                        </SelectTrigger>
+                        <SelectContent position="item-aligned">
+                          <SelectItem value="3">3 sessões - R$ 60</SelectItem>
+                          <SelectItem value="5">5 sessões - R$ 70</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <div className="min-h-[20px]">
                         <FormMessage />
                       </div>
                     </FormItem>
@@ -292,21 +295,22 @@ export function PlanosStep1({ onComplete }: PlanosStep1Props) {
             </div>
 
             {precoTotal > 0 && (
-              <div className="bg-muted p-4 rounded-lg">
+              <div className="bg-muted p-6 rounded-lg mt-6">
                 <div className="flex justify-between items-center">
                   <span className="font-medium">Valor Total:</span>
                   <span className="text-2xl font-bold text-primary">R$ {precoTotal.toLocaleString("pt-BR")}</span>
                 </div>
                 {planoSelecionado === "Personalizado" && (
                   <p className="text-sm text-muted-foreground mt-2">
-                    Plano base (2 sessões): R$ 1.050,00
-                    {sessoes && sessoes > 2 && <span> + {sessoes - 2} sessão(ões) extra × R$ 50,00</span>}
+                    {sessoes === 3 && "Plano com 3 sessões: R$ 60,00"}
+                    {sessoes === 5 && "Plano com 5 sessões: R$ 70,00"}
+                    {!sessoes && "Plano com 3 sessões: R$ 60,00"}
                   </p>
                 )}
               </div>
             )}
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full mt-6" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {getButtonText()}
             </Button>

@@ -12,8 +12,6 @@ export const plans: Plan[] = [
         features: [
             { icon: Globe, text: "Acesso ao painel básico" },
             { icon: Cloud, text: "Monitoramento limitado" },
-            { icon: Shield, text: "Segurança básica" },
-            { icon: BarChart3, text: "Relatórios simples" },
             { icon: Cpu, text: "Suporte via e-mail" },
         ],
         buttonText: "Começar Agora",
@@ -23,16 +21,16 @@ export const plans: Plan[] = [
     {
         title: "Individual",
         description: "Tudo o que você precisa para uso pessoal e monitoramento completo.",
-        price: "R$ 1.500",
-        pricePeriod: "/ano",
-        details: "ou 12x de R$ 1.041,67",
+        price: "R$ 25",
+        pricePeriod: "/mês",
+        details: "ou R$ 300/ano",
         features: [
             { icon: Check, text: "Tudo do Gratuito, mais:" },
             { icon: Users, text: "Estação meteorológica completa" },
             { icon: Cloud, text: "Sensores de temperatura e umidade" },
             { icon: BarChart3, text: "Dashboard web completo" },
             { icon: Shield, text: "Suporte técnico 24/7" },
-            { icon: Cpu, text: "Instalação e treinamento inclusos" },
+            { icon: Cpu, text: "Relatórios Anteriores" },
         ],
         buttonText: "Começar Agora",
         buttonVariant: "default",
@@ -41,7 +39,7 @@ export const plans: Plan[] = [
     {
         title: "Personalizado",
         description: "Solução sob medida para grandes propriedades e equipes.",
-        price: "Sob consulta",
+        price: "Sob Consulta",
         pricePeriod: "",
         details: "Entre em contato para orçamento exclusivo",
         features: [
@@ -51,7 +49,7 @@ export const plans: Plan[] = [
             { icon: Globe, text: "Integração com sistemas existentes" },
             { icon: Headphones, text: "Suporte dedicado" },
         ],
-        buttonText: "Solicitar Orçamento",
+        buttonText: "Personalizar Plano",
         buttonVariant: "outline",
         popular: false,
     },

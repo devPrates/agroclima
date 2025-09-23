@@ -22,37 +22,114 @@ async function sendNewUserNotification(userData: { nome: string; email: string; 
     const { data, error } = await resend.emails.send({
       from: 'Agroclima.NET <onboarding@resend.dev>',
       to: [process.env.NOTIFICATION_EMAIL_1!, process.env.NOTIFICATION_EMAIL_2!],
-      subject: `🎉 Novo usuário cadastrado - ${userData.nome}`,
+      subject: `Novo usuário cadastrado - ${userData.nome}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #16a34a; border-bottom: 2px solid #16a34a; padding-bottom: 10px;">
-            Informações do Usuário:
+          <h2 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px;">
+            Novo Usuário Cadastrado - Agroclima.NET
           </h2>
           
-          <div style="background-color: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #16a34a;">
+          <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1e40af; margin-top: 0;">Informações do Usuário:</h3>
             <p><strong>Nome:</strong> ${userData.nome}</p>
-            <p><strong>E-mail:</strong> ${userData.email}</p>
+            <p><strong>Email:</strong> ${userData.email}</p>
             <p><strong>Plano:</strong> ${userData.plano}</p>
           </div>
           
-          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 14px;">
-            <p>Notificação automática do sistema Agroclima.NET</p>
-            <p>Data: ${new Date().toLocaleString('pt-BR')}</p>
+          <p style="color: #64748b; font-size: 14px; margin-top: 30px;">
+            Este é um email automático de notificação do sistema Agroclima.NET
+          </p>
+        </div>
+      `,
+    });
+
+    if (error) {
+      console.error('Erro ao enviar notificação:', error);
+      return;
+    }
+
+    console.log('Notificação de novo usuário enviada com sucesso:', data);
+  } catch (error) {
+    console.error('Erro ao enviar notificação de novo usuário:', error);
+  }
+}
+
+async function sendWelcomeEmail(userData: { nome: string; email: string; plano: string }) {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'Agroclima.NET <onboarding@resend.dev>',
+      to: [userData.email],
+      subject: `Bem-vindo ao Agroclima.NET, ${userData.nome}!`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+          <div style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); padding: 40px 20px; text-align: center; border-radius: 8px 8px 0 0;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">
+              Bem-vindo ao Agroclima.NET!
+            </h1>
+            <p style="color: #e2e8f0; margin: 10px 0 0 0; font-size: 16px;">
+              Sua conta foi criada com sucesso
+            </p>
+          </div>
+          
+          <div style="padding: 40px 20px;">
+            <p style="font-size: 18px; color: #1e293b; margin-bottom: 20px;">
+              Olá <strong>${userData.nome}</strong>,
+            </p>
+            
+            <p style="color: #475569; line-height: 1.6; margin-bottom: 20px;">
+              É com grande satisfação que damos as boas-vindas ao <strong>Agroclima.NET</strong>! 
+              Sua conta foi criada com sucesso e você já pode começar a aproveitar todos os recursos da nossa plataforma.
+            </p>
+            
+            <div style="background-color: #f1f5f9; padding: 20px; border-radius: 8px; margin: 25px 0;">
+              <h3 style="color: #1e40af; margin-top: 0; margin-bottom: 15px;">Detalhes da sua conta:</h3>
+              <p style="margin: 8px 0; color: #475569;"><strong>Email:</strong> ${userData.email}</p>
+              <p style="margin: 8px 0; color: #475569;"><strong>Plano:</strong> ${userData.plano}</p>
+            </div>
+            
+            <p style="color: #475569; line-height: 1.6; margin-bottom: 30px;">
+              Para começar a usar a plataforma, clique no botão abaixo e faça seu primeiro login:
+            </p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="https://agroclima.net/login" 
+                 style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); 
+                        color: #ffffff; 
+                        text-decoration: none; 
+                        padding: 15px 30px; 
+                        border-radius: 8px; 
+                        font-weight: bold; 
+                        font-size: 16px; 
+                        display: inline-block; 
+                        box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);">
+                Fazer Login Agora
+              </a>
+            </div>
+            
+            <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; margin-top: 30px;">
+              <p style="color: #64748b; font-size: 14px; line-height: 1.5;">
+                Se você tiver alguma dúvida ou precisar de ajuda, não hesite em entrar em contato conosco. 
+                Estamos aqui para ajudá-lo a aproveitar ao máximo o Agroclima.NET.
+              </p>
+              
+              <p style="color: #64748b; font-size: 14px; margin-top: 20px;">
+                Atenciosamente,<br>
+                <strong>Equipe Agroclima.NET</strong>
+              </p>
+            </div>
           </div>
         </div>
       `,
-    })
+    });
 
     if (error) {
-      console.error('Erro ao enviar notificação de novo usuário:', error)
-      return { success: false, error }
+      console.error('Erro ao enviar email de boas-vindas:', error);
+      return;
     }
 
-    console.log('Notificação de novo usuário enviada com sucesso:', data)
-    return { success: true, data }
+    console.log('Email de boas-vindas enviado com sucesso:', data);
   } catch (error) {
-    console.error('Erro na função de notificação:', error)
-    return { success: false, error }
+    console.error('Erro ao enviar email de boas-vindas:', error);
   }
 }
 
@@ -91,6 +168,13 @@ export async function criarConta(data: PlanoData) {
 
     // Enviar notificação para planos pagos também
     await sendNewUserNotification({
+      nome: data.nome,
+      email: data.email,
+      plano: data.plano
+    })
+
+    // Enviar email de boas-vindas para o usuário
+    await sendWelcomeEmail({
       nome: data.nome,
       email: data.email,
       plano: data.plano
@@ -144,6 +228,13 @@ async function criarContaGratuita(data: PlanoData) {
 
     // Verificar se a resposta foi bem-sucedida
     if (response.status === 200 || response.status === 201) {
+      // Enviar email de boas-vindas para o usuário
+      await sendWelcomeEmail({
+        nome: data.nome,
+        email: data.email,
+        plano: data.plano
+      })
+
       return { 
         success: true, 
         message: "Conta criada com sucesso!",

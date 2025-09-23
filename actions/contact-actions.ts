@@ -31,7 +31,7 @@ export async function sendContactEmail(formData: ContactFormData) {
     // Enviar email usando Resend
     const { data, error } = await resend.emails.send({
       from: 'Agroclima.NET <onboarding@resend.dev>', // Use seu domínio verificado
-      to: ['devprates@gmail.com'],
+      to: ['devprates@gmail.com'], // Temporariamente usando apenas email verificado para desenvolvimento
       subject: `Nova mensagem de contato - ${name}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">

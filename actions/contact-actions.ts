@@ -30,14 +30,11 @@ export async function sendContactEmail(formData: ContactFormData) {
 
     // Enviar email usando Resend
     const { data, error } = await resend.emails.send({
-      from: 'Agroclima.NET <onboarding@resend.dev>', // Use seu domínio verificado
-      to: ['devprates@gmail.com'], // Temporariamente usando apenas email verificado para desenvolvimento
+      from: process.env.RESEND_FROM_EMAIL!, // Email do domínio verificado no Resend
+      to: [process.env.NOTIFICATION_EMAIL_1, process.env.NOTIFICATION_EMAIL_2].filter(Boolean) as string[],
       subject: `Nova mensagem de contato - ${name}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px;">
-            Nova Mensagem de Contato - Agroclima.NET
-          </h2>
           
           <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3 style="margin-top: 0; color: #1e293b;">Informações do Contato:</h3>

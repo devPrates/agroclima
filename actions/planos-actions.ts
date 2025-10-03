@@ -20,7 +20,7 @@ export type PlanoData = {
 async function sendNewUserNotification(userData: { nome: string; email: string; plano: string }) {
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Agroclima.NET <onboarding@resend.dev>',
+      from: process.env.RESEND_FROM_EMAIL!,
       to: [process.env.NOTIFICATION_EMAIL_1!, process.env.NOTIFICATION_EMAIL_2!],
       subject: `Novo usuário cadastrado - ${userData.nome}`,
       html: `
@@ -57,7 +57,7 @@ async function sendNewUserNotification(userData: { nome: string; email: string; 
 async function sendWelcomeEmail(userData: { nome: string; email: string; plano: string }) {
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Agroclima.NET <onboarding@resend.dev>',
+      from: process.env.RESEND_FROM_EMAIL!,
       to: [userData.email],
       subject: `Bem-vindo ao Agroclima.NET, ${userData.nome}!`,
       html: `

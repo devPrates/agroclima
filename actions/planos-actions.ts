@@ -92,7 +92,7 @@ async function sendWelcomeEmail(userData: { nome: string; email: string; plano: 
             </p>
             
             <div style="text-align: center; margin: 30px 0;">
-              <a href="https://agroclima.net/login" 
+              <a href="https://agroclima.net/" 
                  style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); 
                         color: #ffffff; 
                         text-decoration: none; 
@@ -102,7 +102,7 @@ async function sendWelcomeEmail(userData: { nome: string; email: string; plano: 
                         font-size: 16px; 
                         display: inline-block; 
                         box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);">
-                Fazer Login Agora
+                Entrar
               </a>
             </div>
             

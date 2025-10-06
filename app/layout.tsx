@@ -4,8 +4,8 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "sonner"
-import { Navbar } from "@/components/navbar"
-import { Footer } from "@/components/footer"
+import { NavbarVisibility } from "@/components/navbar-visibility"
+import { FooterVisibility } from "@/components/footer-visibility"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -25,10 +25,10 @@ export default function RootLayout({
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-          <Navbar />
+          <NavbarVisibility />
           {children}
           <Toaster />
-          <Footer />
+          <FooterVisibility />
         </ThemeProvider>
       </body>
     </html>

@@ -104,8 +104,8 @@ export function Navbar() {
             <div className="font-bold text-xl">Agroclima.NET</div>
           </motion.div>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-8">
+          {/* Desktop Menu - centralizado */}
+          <div className="hidden md:flex flex-1 items-center justify-center space-x-8">
             {menuItems.map((item) => (
               <motion.button
                 key={item.name}
@@ -122,16 +122,16 @@ export function Navbar() {
                 {item.name}
               </motion.button>
             ))}
+          </div>
 
-            <div className="flex items-center space-x-2 ml-8">
-              <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-                {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </Button>
-              
-              <Button variant="default" size="sm">
-                Entrar
-              </Button>
-            </div>
+          {/* Desktop Ações - à direita */}
+          <div className="hidden md:flex items-center space-x-2">
+            <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+              {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            </Button>
+            <Button variant="default" size="sm" onClick={() => router.push('/login')}>
+              Entrar
+            </Button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -172,7 +172,7 @@ export function Navbar() {
                 ))}
                 
                 <div className="pt-4 border-t">
-                  <Button variant="default" size="sm" className="w-full">
+                  <Button variant="default" size="sm" className="w-full" onClick={() => { router.push('/login'); setIsOpen(false); }}>
                     Entrar
                   </Button>
                 </div>

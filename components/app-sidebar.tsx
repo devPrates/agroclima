@@ -32,7 +32,7 @@ export function AppSidebar() {
                   asChild
                   tooltip="Dashboard"
                   isActive={currentTab === "dashboard"}
-                  className="data-[active=true]:bg-muted data-[active=true]:text-foreground"
+                  className="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
                 >
                   <Link href="/dashboard?tab=dashboard">
                     <LayoutDashboard />
@@ -45,7 +45,7 @@ export function AppSidebar() {
                   asChild
                   tooltip="Perfil"
                   isActive={currentTab === "perfil"}
-                  className="data-[active=true]:bg-muted data-[active=true]:text-foreground"
+                  className="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
                 >
                   <Link href="/dashboard?tab=perfil">
                     <User />
@@ -58,7 +58,7 @@ export function AppSidebar() {
                   asChild
                   tooltip="Plano e Faturamento"
                   isActive={currentTab === "plan"}
-                  className="data-[active=true]:bg-muted data-[active=true]:text-foreground"
+                  className="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground"
                 >
                   <Link href="/dashboard?tab=plan">
                     <CreditCard />

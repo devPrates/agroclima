@@ -244,7 +244,7 @@ export function DashboardContent({ user, monthlyPrice = 25, annualPrice = 300, s
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-xl font-semibold">Plano De Assinatura</CardTitle>
-                    <div className="text-base">
+                    <div className="text-base inline-flex items-center px-2 py-0.5 rounded-md bg-muted text-foreground border">
                       {user ? (user.pagante === "n" ? "Gratuito" : "Pago") : "—"}
                     </div>
                   </div>
@@ -253,20 +253,20 @@ export function DashboardContent({ user, monthlyPrice = 25, annualPrice = 300, s
                   <div className="divide-y">
                     {user && user.pagante !== "n" && (
                       <div className="grid grid-cols-1 md:grid-cols-2 p-6">
-                        <div className="text-sm">Cobrado Mensalmente, Próxima Data De Cobrança</div>
-                        <div className="text-right text-sm">13/10/2025 18:13</div>
+                        <div className="text-sm text-center md:text-left">Cobrado Mensalmente, Próxima Data De Cobrança</div>
+                        <div className="text-sm text-center md:text-right">13/10/2025 18:13</div>
                       </div>
                     )}
-                    <div className={`grid grid-cols-1 md:grid-cols-2 p-6 items-center${user?.pagante === "n" ? " border-t" : ""}`}>
-                      <div>
+                    <div className={`grid grid-cols-1 md:grid-cols-2 p-6 items-center gap-4 md:gap-0${user?.pagante === "n" ? " border-t" : ""}`}>
+                      <div className="text-center md:text-left">
                         <div className="text-sm">Plano De Atualização</div>
                         <div className="text-xs text-muted-foreground">Atualize para acessar mais recursos</div>
                       </div>
-                      <div className="text-right">
-                        <Button variant="outline">Mudar para o plano anual</Button>
+                      <div className="text-center md:text-right mt-4 md:mt-0">
+                        <Button variant="outline">mudar plano</Button>
                       </div>
                     </div>
-                    <div className="p-6">
+                    <div className="p-6 text-center md:text-left">
                       <a href="#" className="text-sm text-primary underline-offset-4 hover:underline">Veja informações detalhadas sobre todos os planos e recursos</a>
                     </div>
                   </div>
@@ -274,7 +274,7 @@ export function DashboardContent({ user, monthlyPrice = 25, annualPrice = 300, s
               </Card>
 
               <div>
-                <h2 className="text-base font-semibold mb-3">Histórico De Cobrança</h2>
+                <h2 className="text-base font-semibold mb-3 text-center md:text-left">Histórico De Cobrança</h2>
                 <Card>
                   <CardContent>
                     <Table>
@@ -294,11 +294,11 @@ export function DashboardContent({ user, monthlyPrice = 25, annualPrice = 300, s
 
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-base">Cancelamento De Plano</CardTitle>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <CardTitle className="text-base text-center sm:text-left">Cancelamento De Plano</CardTitle>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="destructive">Cancelar inscrição</Button>
+                        <Button variant="destructive" disabled={user?.pagante === "n"}>Cancelar inscrição</Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>

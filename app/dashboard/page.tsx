@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import axios from "axios";
 import { generateToken } from "@/lib/jwt";
 import { DashboardContent } from "@/components/dashboard/dashboard-content";
+import { Suspense } from "react";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -36,12 +37,14 @@ export default async function DashboardPage() {
   const sessions5Monthly = Number(process.env.MERCADOPAGO_SUBSCRIPTION_AMOUNT_5_SESSIONS ?? 60) || 60
 
   return (
-    <DashboardContent
-      user={user}
-      monthlyPrice={individualMonthly}
-      annualPrice={individualAnnual}
-      sessions3Monthly={sessions3Monthly}
-      sessions5Monthly={sessions5Monthly}
-    />
+    <Suspense fallback={<div className="flex items-center justify-center p-10"><span className="text-muted-foreground">Carregando dashboard...</span></div>}>
+      <DashboardContent
+        user={user}
+        monthlyPrice={individualMonthly}
+        annualPrice={individualAnnual}
+        sessions3Monthly={sessions3Monthly}
+        sessions5Monthly={sessions5Monthly}
+      />
+    </Suspense>
   );
 }

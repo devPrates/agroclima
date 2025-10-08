@@ -1,6 +1,6 @@
 "use client"
 
-import { ReactNode, useEffect, useState } from "react"
+import { ReactNode, useEffect, useState, Suspense } from "react"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { Button } from "@/components/ui/button"
@@ -15,7 +15,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <Suspense fallback={<div className="p-4"><span className="text-muted-foreground">Carregando navegação...</span></div>}>
+        <AppSidebar />
+      </Suspense>
       <SidebarInset>
         <div className="p-4">
           {/* Navbar */}

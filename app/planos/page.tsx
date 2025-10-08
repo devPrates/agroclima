@@ -18,7 +18,7 @@ export default function PlanosPage() {
     <div className="min-h-screen bg-background pt-24 pb-32 px-4 md:pt-28 lg:pt-32">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Escolha seu Plano</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Criar Conta</h1>
           <div className="flex items-center justify-center space-x-4">
             <div
               className={`flex items-center space-x-2 ${currentStep >= 1 ? "text-primary" : "text-muted-foreground"}`}
@@ -39,7 +39,7 @@ export default function PlanosPage() {
               >
                 2
               </div>
-              <span>Confirmação</span>
+              <span>Verificação</span>
             </div>
           </div>
         </div>

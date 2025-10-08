@@ -8,9 +8,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useTheme } from "next-themes"
+import { Check } from "lucide-react"
 import { Sun, Moon } from "lucide-react"
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select"
 // Removed unused Badge import
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { useSearchParams, useRouter } from "next/navigation"
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -30,64 +33,36 @@ type UserProfile = {
   pagante: string // "n" ou "s"
 } | null
 
-type Section = "plan" | "perfil"
+type Section = "dashboard" | "plan" | "perfil"
 
-export function DashboardContent({ user }: { user: UserProfile }) {
+export function DashboardContent({ user, monthlyPrice = 25, annualPrice = 300, sessions3Monthly = 70, sessions5Monthly = 60 }: { user: UserProfile, monthlyPrice?: number, annualPrice?: number, sessions3Monthly?: number, sessions5Monthly?: number }) {
   const [section, setSection] = useState<Section>("plan")
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const searchParams = useSearchParams()
+  const router = useRouter()
   useEffect(() => setMounted(true), [])
+  const [customSessions, setCustomSessions] = useState<"3" | "5">("3")
+
+  useEffect(() => {
+    const tab = searchParams.get("tab") as Section | null
+    if (tab === "dashboard" || tab === "perfil" || tab === "plan") {
+      setSection(tab)
+    }
+  }, [searchParams])
 
   return (
-    <div className="min-h-screen p-6">
-      <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6">
-        {/* Sidebar */}
-        <aside className="md:sticky md:top-6 h-fit border rounded-lg p-4 bg-card">
-          <div className="space-y-6">
-            <div>
-              <div className="text-base font-bold uppercase tracking-wider text-foreground">Conta</div>
-              <ul className="mt-2 space-y-1">
-                <li>
-                  <button
-                    className={`text-sm rounded-md px-2 py-1 transition-colors ${section === "perfil" ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:bg-muted"}`}
-                    onClick={() => setSection("perfil")}
-                  >
-                    Perfil
-                  </button>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <div className="text-base font-bold uppercase tracking-wider text-foreground">Subscrição</div>
-              <ul className="mt-2 space-y-1">
-                <li>
-                  <button
-                    className={`text-sm rounded-md px-2 py-1 transition-colors ${section === "plan" ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:bg-muted"}`}
-                    onClick={() => setSection("plan")}
-                  >
-                    Plano e Faturamento
-                  </button>
-                </li>
-                <li>
-                  <a
-                    href="https://agroclima.net/sbadmin2/perfil.php"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-muted-foreground rounded-md px-2 py-1 hover:bg-muted transition-colors"
-                  >
-                    Acessar Estações
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </aside>
-
-        {/* Main content */}
-        <main className="space-y-6">
+    <div className="min-h-screen p-2 md:p-6">
+      {/* Main content */}
+      <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              {section === "plan" ? (
+              {section === "dashboard" ? (
+                <>
+                  <h1 className="text-3xl font-semibold">Dashboard</h1>
+                  <p className="text-sm text-muted-foreground mt-2">Resumo e ações rápidas conforme seu plano.</p>
+                </>
+              ) : section === "plan" ? (
                 <>
                   <h1 className="text-3xl font-semibold">Plano e Faturamento</h1>
                   <p className="text-sm text-muted-foreground mt-2">Veja seu plano de assinatura e informações de cobrança.</p>
@@ -99,21 +74,171 @@ export function DashboardContent({ user }: { user: UserProfile }) {
                 </>
               )}
             </div>
-            <div className="flex items-center gap-2">
-              {mounted && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                >
-                  {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-                </Button>
-              )}
-              <SignOutButton />
-            </div>
+            {/* Actions moved to Navbar in layout */}
           </div>
 
-          {section === "plan" ? (
+          {section === "dashboard" ? (
+            <>
+              {(() => {
+                const planType = user
+                  ? user.pagante === "n"
+                    ? "Gratuito"
+                    : user.max_sessions > 1
+                    ? "Personalizado"
+                    : "Individual"
+                  : null
+
+                if (!planType) {
+                  return (
+                    <Card>
+                      <CardContent className="p-6">
+                        <div className="text-sm text-muted-foreground">Não foi possível determinar seu plano.</div>
+                      </CardContent>
+                    </Card>
+                  )
+                }
+
+                if (planType === "Gratuito") {
+                  return (
+                    <div className="space-y-4">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-xl">Plano Individual</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-6">
+                          <div className="md:flex md:items-center md:justify-between gap-6">
+                            <div className="space-y-2">
+                              <div className="text-sm text-muted-foreground">Tudo para uso pessoal e monitoramento completo.</div>
+                              <ul className="mt-2 space-y-2 text-sm">
+                                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Estação meteorológica completa</li>
+                                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Dashboard web completo</li>
+                                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Suporte técnico 24/7</li>
+                                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Relatórios anteriores</li>
+                              </ul>
+                            </div>
+                            <div className="shrink-0 text-right space-y-2">
+                              <div>
+                                <span className="text-2xl font-semibold">R$ {monthlyPrice}</span>
+                                <span className="text-sm text-muted-foreground">/mês</span>
+                              </div>
+                              <div className="text-sm text-muted-foreground">ou R$ {annualPrice}/ano</div>
+                              <Button asChild>
+                                <a href="/dashboard?tab=plan">Adquirir plano</a>
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-xl">Plano Personalizado</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-6">
+                          <div className="md:flex md:items-center md:justify-between gap-6">
+                            <div className="space-y-2">
+                              <div className="text-sm text-muted-foreground">Solução sob medida para propriedades e equipes.</div>
+                              <ul className="mt-2 space-y-2 text-sm">
+                                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Mais contas de acesso</li>
+                                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Integração com sistemas existentes</li>
+                                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Gestão multiusuário avançada</li>
+                                <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Suporte dedicado</li>
+                              </ul>
+                            </div>
+                            <div className="shrink-0 text-right space-y-2">
+                              <div className="text-sm">Sessões</div>
+                              <div className="flex items-center gap-2 justify-end">
+                                <Select value={customSessions} onValueChange={(v) => setCustomSessions(v as "3" | "5")}>
+                                  <SelectTrigger className="w-[160px]">
+                                    <SelectValue placeholder="Selecione" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="3">3 sessões</SelectItem>
+                                    <SelectItem value="5">5 sessões</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <span className="text-2xl font-semibold">R$ {customSessions === "3" ? sessions3Monthly : sessions5Monthly}</span>
+                                <span className="text-sm text-muted-foreground">/mês</span>
+                              </div>
+                              <Button variant="outline" asChild>
+                                <a href="/dashboard?tab=plan">Adquirir plano</a>
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  )
+                }
+
+                if (planType === "Individual") {
+                  return (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-xl">Plano Personalizado</CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-6">
+                        <div className="md:flex md:items-center md:justify-between gap-6">
+                          <div className="space-y-2">
+                            <div className="text-sm text-muted-foreground">Escale para equipes e mais recursos.</div>
+                            <ul className="mt-2 space-y-2 text-sm">
+                              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Mais contas de acesso</li>
+                              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Integração com sistemas existentes</li>
+                              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Gestão multiusuário avançada</li>
+                              <li className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" /> Suporte dedicado</li>
+                            </ul>
+                          </div>
+                          <div className="shrink-0 text-right space-y-2">
+                            <div className="text-sm">Sessões</div>
+                            <div className="flex items-center gap-2 justify-end">
+                              <Select value={customSessions} onValueChange={(v) => setCustomSessions(v as "3" | "5")}>
+                                <SelectTrigger className="w-[160px]">
+                                  <SelectValue placeholder="Selecione" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="3">3 sessões</SelectItem>
+                                  <SelectItem value="5">5 sessões</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <span className="text-2xl font-semibold">R$ {customSessions === "3" ? sessions3Monthly : sessions5Monthly}</span>
+                              <span className="text-sm text-muted-foreground">/mês</span>
+                            </div>
+                            <Button variant="outline" asChild>
+                              <a href="/dashboard?tab=plan">Adquirir plano</a>
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                }
+
+                // Personalizado
+                return (
+                  <Card>
+                    <CardContent className="p-6 space-y-4">
+                      <div>
+                        <h2 className="text-xl font-semibold">Bem-vindo!</h2>
+                        <p className="text-sm text-muted-foreground">Seu plano personalizado está ativo.</p>
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <Button asChild>
+                          <a href="/dashboard?tab=plan">Ver plano e faturamento</a>
+                        </Button>
+                        <Button variant="outline" asChild>
+                          <a href="https://agroclima.net/sbadmin2/perfil.php" target="_blank" rel="noopener noreferrer">Acessar o sistema</a>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })()}
+            </>
+          ) : section === "plan" ? (
             <>
               <Card>
                 <CardHeader>
@@ -242,7 +367,6 @@ export function DashboardContent({ user }: { user: UserProfile }) {
               </CardContent>
             </Card>
           )}
-        </main>
       </div>
     </div>
   )

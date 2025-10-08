@@ -30,6 +30,18 @@ export default async function DashboardPage() {
       user = null;
     }
   }
+  const individualMonthly = Number(process.env.MERCADOPAGO_SUBSCRIPTION_AMOUNT ?? 25) || 25
+  const individualAnnual = individualMonthly * 12
+  const sessions3Monthly = Number(process.env.MERCADOPAGO_SUBSCRIPTION_AMOUNT_3_SESSIONS ?? 70) || 70
+  const sessions5Monthly = Number(process.env.MERCADOPAGO_SUBSCRIPTION_AMOUNT_5_SESSIONS ?? 60) || 60
 
-  return <DashboardContent user={user} />;
+  return (
+    <DashboardContent
+      user={user}
+      monthlyPrice={individualMonthly}
+      annualPrice={individualAnnual}
+      sessions3Monthly={sessions3Monthly}
+      sessions5Monthly={sessions5Monthly}
+    />
+  );
 }

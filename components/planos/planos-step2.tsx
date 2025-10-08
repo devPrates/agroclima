@@ -1,129 +1,164 @@
 "use client"
 
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle, CreditCard, User } from "lucide-react"
+import { Input } from "@/components/ui/input"
 import { PlanoData } from "@/actions/planos-actions"
+import { toast } from "sonner"
+import { sendEmailOtp } from "@/actions/auth-actions"
+import { signIn } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp"
 
 interface PlanosStep2Props {
   planoData: PlanoData
 }
 
 export function PlanosStep2({ planoData }: PlanosStep2Props) {
-  const handleLogin = () => {
-    // Redirecionar para página de login
-    console.log("Redirecionando para login...")
+  const router = useRouter()
+
+  const [email, setEmail] = useState(planoData.email || "")
+  const [loading, setLoading] = useState(false)
+  const [showOtp, setShowOtp] = useState(false)
+  const [otp, setOtp] = useState("")
+  const [serverOtpToken, setServerOtpToken] = useState<string | null>(null)
+  const [resending, setResending] = useState(false)
+  const [validating, setValidating] = useState(false)
+
+  const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+
+  const handleSendCode = async () => {
+    if (!isValidEmail(email)) {
+      toast.error("Email inválido. Verifique e tente novamente.")
+      return
+    }
+
+    try {
+      setLoading(true)
+      const res = await sendEmailOtp(email)
+      if (res?.success) {
+        toast.success("Código enviado! Verifique seu email.")
+        setShowOtp(true)
+        setServerOtpToken(res.otpToken ?? null)
+      } else {
+        toast.error(res?.error || "Falha ao enviar o código.")
+      }
+    } catch (error: any) {
+      toast.error(error?.message || "Erro inesperado ao enviar o código.")
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handlePagamento = () => {
-    // Processar pagamento
-    console.log("Processando pagamento...", planoData)
+  const handleValidateCode = async () => {
+    if (!otp || otp.length !== 6) {
+      toast.error("Digite o código completo (6 dígitos)")
+      return
+    }
+    if (!serverOtpToken) {
+      toast.error("Token de validação indisponível. Reenvie o código.")
+      return
+    }
+    try {
+      setValidating(true)
+      const result = await signIn("credentials", {
+        email,
+        otp,
+        otpToken: serverOtpToken,
+        redirect: false,
+        callbackUrl: "/dashboard",
+      })
+
+      if (!result || (result as any)?.error || (result as any)?.ok === false) {
+        toast.error("Código inválido")
+        return
+      }
+      const url = (result as any)?.url || "/dashboard"
+      router.push(url)
+    } finally {
+      setValidating(false)
+    }
   }
 
-  if (planoData.plano === "Gratuito") {
-    return (
-      <Card>
-        <CardContent className="pt-6">
-          <div className="text-center space-y-6">
-            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-              <CheckCircle className="w-8 h-8 text-green-600" />
-            </div>
+  const handleResend = async () => {
+    if (!isValidEmail(email)) {
+      toast.error("Email inválido. Verifique e tente novamente.")
+      return
+    }
+    try {
+      setResending(true)
+      const res = await sendEmailOtp(email)
+      if (res?.success) {
+        toast.success("Novo código enviado!")
+        setOtp("")
+        setServerOtpToken(res.otpToken ?? null)
+      } else {
+        toast.error(res?.error || "Falha ao reenviar o código.")
+      }
+    } catch (error: any) {
+      toast.error(error?.message || "Erro ao reenviar o código.")
+    } finally {
+      setResending(false)
+    }
+  }
 
-            <div>
-              <h2 className="text-2xl font-bold text-foreground mb-2">Conta criada com sucesso!</h2>
-              <p className="text-muted-foreground">
-                Sua conta gratuita foi criada. Você já pode começar a usar nossos serviços.
-              </p>
-            </div>
-
-            <div className="bg-muted p-4 rounded-lg">
-              <div className="flex items-center space-x-3">
-                <User className="w-5 h-5 text-muted-foreground" />
-                <div className="text-left">
-                  <p className="font-medium">{planoData.nome}</p>
-                  <p className="text-sm text-muted-foreground">{planoData.email}</p>
-                  <p className="text-sm text-muted-foreground">Plano: {planoData.plano}</p>
-                </div>
-              </div>
-            </div>
-
-            <Button onClick={handleLogin} className="w-full">
-              Fazer login no sistema
+  // Passo 2: Verificação por email + OTP
+  
+  return (
+    <Card className="w-full max-w-md mx-auto">
+      <CardHeader className="text-center">
+        <CardTitle>Verificação de Email</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6 flex flex-col items-center text-center">
+        {!showOtp ? (
+          <div className="space-y-4 w-full">
+            <p className="text-sm text-muted-foreground">Digite seu email para receber o código OTP.</p>
+            <Input
+              type="email"
+              placeholder="seu@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="text-center w-full max-w-sm mx-auto"
+            />
+            <Button className="w-full max-w-sm mx-auto" onClick={handleSendCode} disabled={loading || !isValidEmail(email)}>
+              {loading ? "Enviando..." : "Receber código por email"}
             </Button>
           </div>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <CreditCard className="w-5 h-5" />
-          <span>Revisão do Plano</span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="bg-muted p-4 rounded-lg">
-          <h3 className="font-semibold mb-3">Dados do Cliente</h3>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Nome:</span>
-              <span>{planoData.nome}</span>
+        ) : (
+          <div className="space-y-4 w-full">
+            <p className="text-sm text-muted-foreground">Insira o código enviado para {email}.</p>
+            <div className="flex justify-center">
+              <InputOTP maxLength={6} value={otp} onChange={setOtp}>
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                </InputOTPGroup>
+                <InputOTPSeparator />
+                <InputOTPGroup>
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                </InputOTPGroup>
+              </InputOTP>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Email:</span>
-              <span>{planoData.email}</span>
+            <div className="text-center text-sm text-muted-foreground">Código de 6 dígitos.</div>
+            <div className="flex w-full max-w-sm mx-auto justify-between">
+              <Button className="w-[48%]" variant="outline" onClick={handleResend} disabled={resending}>
+                {resending ? "Reenviando..." : "Reenviar"}
+              </Button>
+              <Button className="w-[48%]" onClick={handleValidateCode} disabled={validating || otp.length !== 6}>
+                {validating ? "Validando..." : "Validar código"}
+              </Button>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Plano:</span>
-              <span>{planoData.plano}</span>
-            </div>
-            {planoData.plano === "Personalizado" && planoData.sessoes && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Sessões:</span>
-                <span>{planoData.sessoes}</span>
-              </div>
-            )}
           </div>
-        </div>
-
-        <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
-          <div className="flex justify-between items-center">
-            <span className="font-semibold">Valor Total:</span>
-            <span className="text-2xl font-bold text-primary">R$ {planoData.precoTotal.toLocaleString("pt-BR")}</span>
-          </div>
-          {planoData.plano === "Personalizado" && planoData.sessoes && (
-            <p className="text-sm text-muted-foreground mt-2">{planoData.sessoes} sessão(ões) × R$ 50,00 cada</p>
-          )}
-        </div>
-
-        <div className="space-y-3">
-          <h4 className="font-medium">Resumo do Plano {planoData.plano}</h4>
-          <ul className="text-sm text-muted-foreground space-y-1">
-            {planoData.plano === "Individual" && (
-              <>
-                <li>• Acesso completo à plataforma</li>
-                <li>• Suporte prioritário</li>
-                <li>• Recursos avançados</li>
-              </>
-            )}
-            {planoData.plano === "Personalizado" && (
-              <>
-                <li>• Plano customizado para suas necessidades</li>
-                <li>• {planoData.sessoes} sessão(ões) incluída(s)</li>
-                <li>• Suporte dedicado</li>
-                <li>• Recursos premium</li>
-              </>
-            )}
-          </ul>
-        </div>
-
-        <Button onClick={handlePagamento} className="w-full">
-          <CreditCard className="mr-2 h-4 w-4" />
-          Realizar pagamento
-        </Button>
+        )}
       </CardContent>
     </Card>
   )

@@ -11,6 +11,7 @@ import { useTheme } from "next-themes"
 import { Check } from "lucide-react"
 import { Sun, Moon } from "lucide-react"
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
 // Removed unused Badge import
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { useSearchParams, useRouter } from "next/navigation"
@@ -43,6 +44,7 @@ export function DashboardContent({ user, monthlyPrice = 25, annualPrice = 300, s
   const router = useRouter()
   useEffect(() => setMounted(true), [])
   const [customSessions, setCustomSessions] = useState<"3" | "5">("3")
+  const [billingCycle, setBillingCycle] = useState<"mensal" | "anual">("mensal")
 
   useEffect(() => {
     const tab = searchParams.get("tab") as Section | null
@@ -117,13 +119,41 @@ export function DashboardContent({ user, monthlyPrice = 25, annualPrice = 300, s
                               </ul>
                             </div>
                             <div className="shrink-0 text-right space-y-2">
-                              <div>
-                                <span className="text-2xl font-semibold">R$ {monthlyPrice}</span>
-                                <span className="text-sm text-muted-foreground">/mês</span>
+                              <div className="flex items-center justify-end gap-2">
+                                <span className="text-xs text-muted-foreground">anual</span>
+                                <Switch checked={billingCycle === "mensal"} onCheckedChange={(v) => setBillingCycle(v ? "mensal" : "anual")} />
+                                <span className="text-xs text-muted-foreground">mensal</span>
                               </div>
-                              <div className="text-sm text-muted-foreground">ou R$ {annualPrice}/ano</div>
+                              <div>
+                                <span className="text-2xl font-semibold">R$ {billingCycle === "mensal" ? monthlyPrice : annualPrice}</span>
+                                <span className="text-sm text-muted-foreground">{billingCycle === "mensal" ? "/mês" : "/ano"}</span>
+                              </div>
                               <Button asChild>
-                                <a href="/dashboard?tab=plan">Adquirir plano</a>
+                                <a
+                                  href="#"
+                                  onClick={async (e) => {
+                                    e.preventDefault()
+                                    try {
+                                      const resp = await fetch("/api/mercadopago/preference", {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({ amount: annualPrice, description: "Plano Individual - Anual" }),
+                                      })
+                                      const data = await resp.json()
+                                      if (!resp.ok || !data?.init_point) {
+                                        console.error("Falha ao criar preferência:", data)
+                                        alert("Não foi possível iniciar o pagamento. Tente novamente.")
+                                        return
+                                      }
+                                      window.location.href = data.init_point
+                                    } catch (err) {
+                                      console.error(err)
+                                      alert("Erro inesperado ao iniciar o pagamento.")
+                                    }
+                                  }}
+                                >
+                                  Adquirir plano
+                                </a>
                               </Button>
                             </div>
                           </div>
@@ -158,9 +188,14 @@ export function DashboardContent({ user, monthlyPrice = 25, annualPrice = 300, s
                                   </SelectContent>
                                 </Select>
                               </div>
+                              <div className="flex items-center justify-end gap-2">
+                                <span className="text-xs text-muted-foreground">anual</span>
+                                <Switch checked={billingCycle === "mensal"} onCheckedChange={(v) => setBillingCycle(v ? "mensal" : "anual")} />
+                                <span className="text-xs text-muted-foreground">mensal</span>
+                              </div>
                               <div>
-                                <span className="text-2xl font-semibold">R$ {customSessions === "3" ? sessions3Monthly : sessions5Monthly}</span>
-                                <span className="text-sm text-muted-foreground">/mês</span>
+                                <span className="text-2xl font-semibold">R$ {billingCycle === "mensal" ? (customSessions === "3" ? sessions3Monthly : sessions5Monthly) : (customSessions === "3" ? sessions3Monthly * 12 : sessions5Monthly * 12)}</span>
+                                <span className="text-sm text-muted-foreground">{billingCycle === "mensal" ? "/mês" : "/ano"}</span>
                               </div>
                               <Button variant="outline" asChild>
                                 <a href="/dashboard?tab=plan">Adquirir plano</a>
@@ -203,9 +238,14 @@ export function DashboardContent({ user, monthlyPrice = 25, annualPrice = 300, s
                                 </SelectContent>
                               </Select>
                             </div>
+                            <div className="flex items-center justify-end gap-2">
+                              <span className="text-xs text-muted-foreground">anual</span>
+                              <Switch checked={billingCycle === "mensal"} onCheckedChange={(v) => setBillingCycle(v ? "mensal" : "anual")} />
+                              <span className="text-xs text-muted-foreground">mensal</span>
+                            </div>
                             <div>
-                              <span className="text-2xl font-semibold">R$ {customSessions === "3" ? sessions3Monthly : sessions5Monthly}</span>
-                              <span className="text-sm text-muted-foreground">/mês</span>
+                              <span className="text-2xl font-semibold">R$ {billingCycle === "mensal" ? (customSessions === "3" ? sessions3Monthly : sessions5Monthly) : (customSessions === "3" ? sessions3Monthly * 12 : sessions5Monthly * 12)}</span>
+                              <span className="text-sm text-muted-foreground">{billingCycle === "mensal" ? "/mês" : "/ano"}</span>
                             </div>
                             <Button variant="outline" asChild>
                               <a href="/dashboard?tab=plan">Adquirir plano</a>
@@ -258,11 +298,27 @@ export function DashboardContent({ user, monthlyPrice = 25, annualPrice = 300, s
                       </div>
                     )}
                     <div className={`grid grid-cols-1 md:grid-cols-2 p-6 items-center gap-4 md:gap-0${user?.pagante === "n" ? " border-t" : ""}`}>
-                      <div className="text-center md:text-left">
+                      <div className="text-center md:text-left space-y-2">
                         <div className="text-sm">Plano De Atualização</div>
                         <div className="text-xs text-muted-foreground">Atualize para acessar mais recursos</div>
+                        <div className="flex items-center justify-center md:justify-start gap-2">
+                          <div className="text-sm">Período</div>
+                          <Select value={billingCycle} onValueChange={(v) => setBillingCycle(v as "mensal" | "anual")}> 
+                            <SelectTrigger className="w-[160px]">
+                              <SelectValue placeholder="Selecione" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="mensal">Mensal</SelectItem>
+                              <SelectItem value="anual">Anual</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
-                      <div className="text-center md:text-right mt-4 md:mt-0">
+                      <div className="text-center md:text-right mt-4 md:mt-0 space-y-2">
+                        <div>
+                          <span className="text-2xl font-semibold">R$ {billingCycle === "mensal" ? monthlyPrice : annualPrice}</span>
+                          <span className="text-sm text-muted-foreground">{billingCycle === "mensal" ? "/mês" : "/ano"}</span>
+                        </div>
                         <Button variant="outline">mudar plano</Button>
                       </div>
                     </div>

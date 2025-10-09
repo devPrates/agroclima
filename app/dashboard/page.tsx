@@ -31,10 +31,11 @@ export default async function DashboardPage() {
       user = null;
     }
   }
-  const individualMonthly = Number(process.env.MERCADOPAGO_SUBSCRIPTION_AMOUNT ?? 25) || 25
-  const individualAnnual = individualMonthly * 12
-  const sessions3Monthly = Number(process.env.MERCADOPAGO_SUBSCRIPTION_AMOUNT_3_SESSIONS ?? 70) || 70
-  const sessions5Monthly = Number(process.env.MERCADOPAGO_SUBSCRIPTION_AMOUNT_5_SESSIONS ?? 60) || 60
+  // Preços de teste: reduzir todos para R$ 0,10
+  const individualMonthly = 0.10
+  const individualAnnual = 0.10
+  const sessions3Monthly = 0.10
+  const sessions5Monthly = 0.10
 
   return (
     <Suspense fallback={<div className="flex items-center justify-center p-10"><span className="text-muted-foreground">Carregando dashboard...</span></div>}>

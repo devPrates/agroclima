@@ -1,23 +1,39 @@
 import { NextResponse } from "next/server"
+import { MercadoPagoConfig, PreApproval } from "mercadopago"
 
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}))
     const {
-      plan_id,
       payer_email,
-      reason = "Assinatura mensal AgroClima",
+      amount,
+      currency_id,
+      frequency = 1,
+      frequency_type = "months",
+      reason = "Assinatura AgroClima",
       external_reference,
       back_url: backUrlFromBody,
-    }: { plan_id?: string; payer_email?: string; reason?: string; external_reference?: string; back_url?: string } = body || {}
+    }: {
+      payer_email?: string
+      amount?: number
+      currency_id?: string
+      frequency?: number
+      frequency_type?: "days" | "months"
+      reason?: string
+      external_reference?: string
+      back_url?: string
+    } = body || {}
 
     const token = process.env.MP_ACCESS_TOKEN || process.env.MERCADOPAGO_ACCESS_TOKEN
     if (!token) {
       return NextResponse.json({ error: "Access token ausente" }, { status: 500 })
     }
 
-    if (!plan_id) {
-      return NextResponse.json({ error: "plan_id é obrigatório (preapproval_plan_id)" }, { status: 400 })
+    if (!payer_email) {
+      return NextResponse.json({ error: "payer_email é obrigatório" }, { status: 400 })
+    }
+    if (!amount) {
+      return NextResponse.json({ error: "amount é obrigatório" }, { status: 400 })
     }
 
     // back_url é obrigatório para o fluxo sem card_token; usa body, env ou deriva do host
@@ -45,29 +61,27 @@ export async function POST(req: Request) {
       )
     }
 
-    const payload: any = {
-      preapproval_plan_id: plan_id,
-      payer_email,
-      reason,
-      external_reference,
-    }
+    const mp = new MercadoPagoConfig({ accessToken: token })
+    const preApproval = new PreApproval(mp)
 
-    // back_url obrigatório para gerar init_point de autorização
-    if (backUrl) {
-      payload.back_url = backUrl
-    }
-
-    const resp = await fetch("https://api.mercadopago.com/preapproval", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+    const data = await preApproval.create({
+      body: {
+        back_url: backUrl,
+        reason,
+        auto_recurring: {
+          frequency,
+          frequency_type,
+          transaction_amount: amount,
+          currency_id: currency_id || process.env.MERCADOPAGO_SUBSCRIPTION_CURRENCY || "BRL",
+        },
+        payer_email,
+        status: "pending",
+        external_reference,
       },
-      body: JSON.stringify(payload),
     })
-    const data = await resp.json()
-    if (!resp.ok) {
-      return NextResponse.json({ error: data?.message || "Falha ao criar preapproval", details: data }, { status: resp.status })
+
+    if (!data?.init_point) {
+      return NextResponse.json({ error: "Falha ao criar preapproval", details: data }, { status: 400 })
     }
 
     return NextResponse.json({ id: data.id, status: data.status, init_point: data.init_point })

@@ -135,26 +135,17 @@ export function DashboardContent({ user, payerEmail, monthlyPrice = 25, annualPr
                                   try {
                                     setCheckingOut(true)
                                     if (billingCycle === "mensal") {
-                                      // Assinatura mensal: cria plano (R$1/mês) e preapproval
-                                      const planResp = await fetch("/api/mercadopago/preapproval-plan", {
-                                        method: "POST",
-                                        headers: { "Content-Type": "application/json" },
-                                        body: JSON.stringify({ transaction_amount: monthlyPrice, currency_id: "BRL", frequency: 1, frequency_type: "months", billing_day_proportional: false }),
-                                      })
-                                      const planData = await planResp.json()
-                                      if (!planResp.ok || !planData?.id) {
-                                        console.error("Falha ao criar preapproval_plan:", planResp.status, planData)
-                                        const msg = planData?.error || planData?.details?.message || planData?.details?.raw || "Não foi possível iniciar a assinatura mensal. Tente novamente."
-                                        alert(String(msg))
-                                        return
-                                      }
-
+                                      // Assinatura mensal via SDK (sem plano): cria preapproval pendente e redireciona
                                       const preResp = await fetch("/api/mercadopago/preapproval", {
                                         method: "POST",
                                         headers: { "Content-Type": "application/json" },
                                         body: JSON.stringify({
-                                          plan_id: planData.id,
                                           payer_email: payerEmail,
+                                          amount: monthlyPrice,
+                                          currency_id: "BRL",
+                                          frequency: 1,
+                                          frequency_type: "months",
+                                          reason: "Plano Individual - Mensal",
                                           external_reference: payerEmail,
                                           back_url: typeof window !== "undefined" ? `${window.location.origin}/mercadopago/success` : undefined,
                                         }),

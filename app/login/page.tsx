@@ -7,6 +7,7 @@ import { sendEmailOtp } from "@/actions/auth-actions"
 import { toast } from "sonner"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import { Loader2 } from "lucide-react"
 import {
   InputOTP,
   InputOTPGroup,
@@ -23,6 +24,7 @@ export default function LoginPage() {
   const [serverOtp, setServerOtp] = useState<string | null>(null)
   const [resending, setResending] = useState(false)
   const [serverOtpToken, setServerOtpToken] = useState<string | null>(null)
+  const [validating, setValidating] = useState(false)
 
   const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 
@@ -59,24 +61,28 @@ export default function LoginPage() {
       toast.error("Token de validação indisponível. Reenvie o código.")
       return
     }
+    try {
+      setValidating(true)
+      const result = await signIn("credentials", {
+        email,
+        otp,
+        otpToken: serverOtpToken,
+        redirect: false,
+        callbackUrl: "/dashboard",
+      })
 
-    const result = await signIn("credentials", {
-      email,
-      otp,
-      otpToken: serverOtpToken,
-      redirect: false,
-      callbackUrl: "/dashboard",
-    })
-
-    // Quando redirect: false, NextAuth retorna um objeto com ok/error/url
-    if (!result || (result as any)?.error || (result as any)?.ok === false) {
-      console.log("invalido")
-      toast.error("Código inválido")
-      return
+      // Quando redirect: false, NextAuth retorna um objeto com ok/error/url
+      if (!result || (result as any)?.error || (result as any)?.ok === false) {
+        console.log("invalido")
+        toast.error("Código inválido")
+        return
+      }
+      console.log("valido")
+      const url = (result as any)?.url || "/dashboard"
+      router.push(url)
+    } finally {
+      setValidating(false)
     }
-    console.log("valido")
-    const url = (result as any)?.url || "/dashboard"
-    router.push(url)
   }
 
   const handleResend = async () => {
@@ -150,8 +156,14 @@ export default function LoginPage() {
             </div>
             <div className="text-center text-sm text-muted-foreground">Código de 6 dígitos.</div>
             <div className="flex gap-3">
-              <Button className="w-full" onClick={handleValidateCode} disabled={otp.length !== 6}>
-                Validar código
+              <Button className="w-full" onClick={handleValidateCode} disabled={otp.length !== 6 || validating}>
+                {validating ? (
+                  <span className="inline-flex items-center">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Validando...
+                  </span>
+                ) : (
+                  "Validar código"
+                )}
               </Button>
               <Button className="w-full" variant="outline" onClick={handleResend} disabled={resending}>
                 {resending ? "Reenviando..." : "Reenviar"}

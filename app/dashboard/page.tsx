@@ -31,16 +31,17 @@ export default async function DashboardPage() {
       user = null;
     }
   }
-  // Preços de teste: reduzir todos para R$ 0,10
-  const individualMonthly = 0.10
-  const individualAnnual = 0.10
-  const sessions3Monthly = 0.10
-  const sessions5Monthly = 0.10
+  // Preços de teste: todos em R$ 1,00
+  const individualMonthly = 1
+  const individualAnnual = 1
+  const sessions3Monthly = 1
+  const sessions5Monthly = 1
 
   return (
     <Suspense fallback={<div className="flex items-center justify-center p-10"><span className="text-muted-foreground">Carregando dashboard...</span></div>}>
       <DashboardContent
         user={user}
+        payerEmail={email ?? undefined}
         monthlyPrice={individualMonthly}
         annualPrice={individualAnnual}
         sessions3Monthly={sessions3Monthly}

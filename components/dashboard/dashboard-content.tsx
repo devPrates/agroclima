@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useTheme } from "next-themes"
-import { Check } from "lucide-react"
+import { Check, Loader2 } from "lucide-react"
 import { Sun, Moon } from "lucide-react"
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
@@ -36,7 +36,7 @@ type UserProfile = {
 
 type Section = "dashboard" | "plan" | "perfil"
 
-export function DashboardContent({ user, monthlyPrice = 25, annualPrice = 300, sessions3Monthly = 70, sessions5Monthly = 60 }: { user: UserProfile, monthlyPrice?: number, annualPrice?: number, sessions3Monthly?: number, sessions5Monthly?: number }) {
+export function DashboardContent({ user, payerEmail, monthlyPrice = 25, annualPrice = 300, sessions3Monthly = 70, sessions5Monthly = 60 }: { user: UserProfile, payerEmail?: string, monthlyPrice?: number, annualPrice?: number, sessions3Monthly?: number, sessions5Monthly?: number }) {
   const [section, setSection] = useState<Section>("plan")
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
@@ -45,6 +45,7 @@ export function DashboardContent({ user, monthlyPrice = 25, annualPrice = 300, s
   useEffect(() => setMounted(true), [])
   const [customSessions, setCustomSessions] = useState<"3" | "5">("3")
   const [billingCycle, setBillingCycle] = useState<"mensal" | "anual">("mensal")
+  const [checkingOut, setCheckingOut] = useState(false)
 
   useEffect(() => {
     const tab = searchParams.get("tab") as Section | null
@@ -128,32 +129,68 @@ export function DashboardContent({ user, monthlyPrice = 25, annualPrice = 300, s
                                 <span className="text-2xl font-semibold">R$ {billingCycle === "mensal" ? monthlyPrice : annualPrice}</span>
                                 <span className="text-sm text-muted-foreground">{billingCycle === "mensal" ? "/mês" : "/ano"}</span>
                               </div>
-                              <Button asChild>
-                                <a
-                                  href="#"
-                                  onClick={async (e) => {
-                                    e.preventDefault()
-                                    try {
+                              <Button
+                                disabled={checkingOut}
+                                onClick={async () => {
+                                  try {
+                                    setCheckingOut(true)
+                                    if (billingCycle === "mensal") {
+                                      // Assinatura mensal: cria plano (R$1/mês) e preapproval
+                                      const planResp = await fetch("/api/mercadopago/preapproval-plan", {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({ transaction_amount: monthlyPrice, currency_id: "BRL", frequency: 1, frequency_type: "months", billing_day_proportional: false }),
+                                      })
+                                      const planData = await planResp.json()
+                                      if (!planResp.ok || !planData?.id) {
+                                        console.error("Falha ao criar preapproval_plan:", planResp.status, planData)
+                                        const msg = planData?.error || planData?.details?.message || planData?.details?.raw || "Não foi possível iniciar a assinatura mensal. Tente novamente."
+                                        alert(String(msg))
+                                        return
+                                      }
+
+                                      const preResp = await fetch("/api/mercadopago/preapproval", {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({ plan_id: planData.id, payer_email: payerEmail, external_reference: payerEmail }),
+                                      })
+                                      const preData = await preResp.json()
+                                      if (!preResp.ok || !preData?.init_point) {
+                                        console.error("Falha ao criar preapproval:", preData)
+                                        alert("Não foi possível iniciar a assinatura mensal. Tente novamente.")
+                                        return
+                                      }
+                                      window.location.href = preData.init_point
+                                    } else {
+                                      // Cobrança anual: preferência de checkout
                                       const resp = await fetch("/api/mercadopago/preference", {
                                         method: "POST",
                                         headers: { "Content-Type": "application/json" },
-                                        body: JSON.stringify({ amount: annualPrice, description: "Plano Individual - Anual" }),
+                                        body: JSON.stringify({ amount: annualPrice, description: "Plano Individual - Anual", payerEmail: payerEmail }),
                                       })
                                       const data = await resp.json()
                                       if (!resp.ok || !data?.init_point) {
                                         console.error("Falha ao criar preferência:", data)
-                                        alert("Não foi possível iniciar o pagamento. Tente novamente.")
+                                        alert("Não foi possível iniciar o pagamento anual. Tente novamente.")
                                         return
                                       }
                                       window.location.href = data.init_point
-                                    } catch (err) {
-                                      console.error(err)
-                                      alert("Erro inesperado ao iniciar o pagamento.")
                                     }
-                                  }}
-                                >
-                                  Adquirir plano
-                                </a>
+                                  } catch (err) {
+                                    console.error(err)
+                                    alert("Erro inesperado ao iniciar o checkout.")
+                                  } finally {
+                                    setCheckingOut(false)
+                                  }
+                                }}
+                              >
+                                {checkingOut ? (
+                                  <span className="inline-flex items-center">
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processando...
+                                  </span>
+                                ) : (
+                                  "Adquirir plano"
+                                )}
                               </Button>
                             </div>
                           </div>

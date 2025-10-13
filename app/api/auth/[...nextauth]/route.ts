@@ -1,6 +1,7 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import jwt from "jsonwebtoken";
+import { upsertUserFromApi } from "@/actions/user-actions";
 
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
@@ -45,6 +46,18 @@ export const authOptions: NextAuthOptions = {
   ],
   pages: {
     signIn: "/login",
+  },
+  events: {
+    async signIn({ user }) {
+      try {
+        const email = (user as any)?.email as string | undefined
+        if (email) {
+          await upsertUserFromApi(email)
+        }
+      } catch (e) {
+        console.error("Evento signIn: falha ao persistir usuário", e)
+      }
+    },
   },
 };
 

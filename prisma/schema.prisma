@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PaymentStatus {
+  pending
+  approved
+  authorized
+  in_process
+  rejected
+  refunded
+  charged_back
+  cancelled
+}
+
+model Payment {
+  id               String         @id @default(cuid())
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  status           PaymentStatus?
+  amount           Decimal?       @db.Decimal(10, 2)
+  currency         String?        @default("BRL")
+
+  payerEmail       String?
+  paymentId        String?        @unique
+  preferenceId     String?
+  orderId          String?
+
+  externalReference String?
+  metadata         Json?
+}
+
+model User {
+  id            Int       @id
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  nome          String
+  login         String    @unique
+  max_sessions  Int
+  pagante       String    @db.VarChar(1) // valores esperados: "s" ou "n"
+}

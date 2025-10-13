@@ -152,12 +152,18 @@ export function DashboardContent({ user, payerEmail, monthlyPrice = 25, annualPr
                                       const preResp = await fetch("/api/mercadopago/preapproval", {
                                         method: "POST",
                                         headers: { "Content-Type": "application/json" },
-                                        body: JSON.stringify({ plan_id: planData.id, payer_email: payerEmail, external_reference: payerEmail }),
+                                        body: JSON.stringify({
+                                          plan_id: planData.id,
+                                          payer_email: payerEmail,
+                                          external_reference: payerEmail,
+                                          back_url: typeof window !== "undefined" ? `${window.location.origin}/mercadopago/success` : undefined,
+                                        }),
                                       })
                                       const preData = await preResp.json()
                                       if (!preResp.ok || !preData?.init_point) {
-                                        console.error("Falha ao criar preapproval:", preData)
-                                        alert("Não foi possível iniciar a assinatura mensal. Tente novamente.")
+                                        console.error("Falha ao criar preapproval:", preResp.status, preData)
+                                        const msg = preData?.error || preData?.details?.message || preData?.details?.raw || "Não foi possível iniciar a assinatura mensal. Tente novamente."
+                                        alert(String(msg))
                                         return
                                       }
                                       window.location.href = preData.init_point

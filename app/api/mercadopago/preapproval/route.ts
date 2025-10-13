@@ -27,11 +27,22 @@ export async function POST(req: Request) {
       backUrl = appUrl.endsWith("/") ? `${appUrl}mercadopago/success` : `${appUrl}/mercadopago/success`
     }
     if (!backUrl) {
-      const proto = req.headers.get("x-forwarded-proto") || "http"
+      const proto = req.headers.get("x-forwarded-proto") || "https"
       const host = req.headers.get("x-forwarded-host") || req.headers.get("host")
       if (host) {
         backUrl = `${proto}://${host}/mercadopago/success`
       }
+    }
+
+    // Falha cedo se não houver back_url resolvido para evitar erro genérico da API
+    if (!backUrl) {
+      return NextResponse.json(
+        {
+          error: "back_url ausente",
+          hint: "Defina MERCADOPAGO_BACK_URL, MP_SUCCESS_URL ou NEXT_PUBLIC_APP_URL",
+        },
+        { status: 400 }
+      )
     }
 
     const payload: any = {

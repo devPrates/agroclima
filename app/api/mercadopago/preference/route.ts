@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { prisma } from "@/lib/prisma"
 
 export async function POST(req: Request) {
   try {
@@ -56,6 +57,27 @@ export async function POST(req: Request) {
     const data = await resp.json()
     if (!resp.ok) {
       return NextResponse.json({ error: data?.message || "Falha ao criar preference", details: data }, { status: resp.status })
+    }
+
+    // Persistir intento de pagamento com status pendente
+    try {
+      await prisma.payment.create({
+        data: {
+          status: "pending",
+          amount,
+          currency: "BRL",
+          payerEmail,
+          externalReference,
+          preferenceId: data.id,
+          metadata: {
+            init_point: data.init_point,
+            sandbox_init_point: data.sandbox_init_point,
+            description,
+          },
+        },
+      })
+    } catch (dbErr) {
+      console.error("Falha ao persistir Payment pendente:", dbErr)
     }
 
     return NextResponse.json({ id: data.id, init_point: data.init_point, sandbox_init_point: data.sandbox_init_point })

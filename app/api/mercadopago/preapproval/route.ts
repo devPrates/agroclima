@@ -19,12 +19,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "plan_id é obrigatório (preapproval_plan_id)" }, { status: 400 })
     }
 
+    const backUrl = process.env.MP_SUBS_BACK_URL || process.env.NEXT_PUBLIC_APP_URL || undefined
+
     const payload: any = {
       preapproval_plan_id: plan_id,
       payer_email,
       reason,
       external_reference,
-      status: "authorized",
+    }
+
+    // Quando fornecido, back_url redireciona após a autorização da assinatura
+    if (backUrl) {
+      payload.back_url = backUrl
     }
 
     const resp = await fetch("https://api.mercadopago.com/preapproval", {

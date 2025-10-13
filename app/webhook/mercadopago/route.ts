@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { prisma } from "@/lib/prisma"
 
 function getQuery(url: string) {
   try {
@@ -43,8 +44,135 @@ export async function POST(req: Request) {
     }
   }
 
-  // Aqui você pode persistir em DB/log, atualizar status do usuário/plano, etc.
-  // Por enquanto, retornamos um OK com metadados.
+  // Persistir/atualizar pagamento conforme o tópico
+  try {
+    if (topic === "payment" && resource) {
+      const paymentId = String(resource.id)
+      const status = String(resource.status || "pending") as any
+      const amount = Number(resource.transaction_amount || resource.amount || 0)
+      const currency = String(resource.currency_id || "BRL")
+      const payerEmail = resource?.payer?.email || undefined
+      const externalReference = resource?.external_reference || undefined
+      const preferenceId = resource?.preference_id || undefined
+      const orderId = resource?.order?.id ? String(resource.order.id) : undefined
+
+      // Tentar associar ao registro criado na criação da preferência
+      if (preferenceId) {
+        const existing = await prisma.payment.findFirst({ where: { preferenceId } })
+        if (existing) {
+          await prisma.payment.update({
+            where: { id: existing.id },
+            data: {
+              paymentId,
+              status,
+              amount,
+              currency,
+              payerEmail,
+              externalReference,
+              preferenceId,
+              orderId,
+              metadata: {
+                status_detail: resource?.status_detail,
+              },
+            },
+          })
+        } else {
+          // Caso não exista, criar pelo paymentId
+          await prisma.payment.upsert({
+            where: { paymentId },
+            update: {
+              status,
+              amount,
+              currency,
+              payerEmail,
+              externalReference,
+              preferenceId,
+              orderId,
+              metadata: { status_detail: resource?.status_detail },
+            },
+            create: {
+              paymentId,
+              status,
+              amount,
+              currency,
+              payerEmail,
+              externalReference,
+              preferenceId,
+              orderId,
+              metadata: { status_detail: resource?.status_detail },
+            },
+          })
+        }
+      } else {
+        // Sem preferenceId: garantir persistência via paymentId
+        await prisma.payment.upsert({
+          where: { paymentId },
+          update: {
+            status,
+            amount,
+            currency,
+            payerEmail,
+            externalReference,
+            orderId,
+            metadata: { status_detail: resource?.status_detail },
+          },
+          create: {
+            paymentId,
+            status,
+            amount,
+            currency,
+            payerEmail,
+            externalReference,
+            orderId,
+            metadata: { status_detail: resource?.status_detail },
+          },
+        })
+      }
+    }
+
+    // Assinaturas: preapproval
+    if ((topic === "subscription_preapproval" || topic === "preapproval") && resource) {
+      const paymentId = String(resource.id)
+      const status = String(resource.status || "authorized") as any
+      const payerEmail = resource?.payer_email || undefined
+      const externalReference = resource?.external_reference || undefined
+
+      await prisma.payment.upsert({
+        where: { paymentId },
+        update: {
+          status,
+          payerEmail,
+          externalReference,
+          metadata: { type: "preapproval" },
+        },
+        create: {
+          paymentId,
+          status,
+          currency: "BRL",
+          payerEmail,
+          externalReference,
+          metadata: { type: "preapproval" },
+        },
+      })
+    }
+
+    // Autorização de pagamento recorrente
+    if ((topic === "subscription_authorized_payment" || topic === "authorized_payment") && resource) {
+      const paymentId = String(resource.id)
+      const status = String(resource.status || "approved") as any
+      const amount = Number(resource?.transaction_amount || 0)
+      const currency = String(resource?.currency_id || "BRL")
+
+      await prisma.payment.upsert({
+        where: { paymentId },
+        update: { status, amount, currency, metadata: { type: "authorized_payment" } },
+        create: { paymentId, status, amount, currency, metadata: { type: "authorized_payment" } },
+      })
+    }
+  } catch (persistErr) {
+    console.error("Falha ao persistir atualização de pagamento:", persistErr)
+  }
+
   return NextResponse.json({ ok: true, meta, resource })
 }
 

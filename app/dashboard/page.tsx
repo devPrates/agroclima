@@ -31,11 +31,16 @@ export default async function DashboardPage() {
       user = null;
     }
   }
-  // Preços de teste: todos em R$ 1,00
-  const individualMonthly = 1
-  const individualAnnual = 1
-  const sessions3Monthly = 1
-  const sessions5Monthly = 1
+  // Preços via .env e anual com 10% de desconto
+  const toPrice = (val: string | undefined, fallback: number) => {
+    const n = Number(val)
+    return Number.isFinite(n) && n > 0 ? n : fallback
+  }
+
+  const individualMonthly = toPrice(process.env.INDIVIDUAL_MONTHLY_PRICE, 25)
+  const sessions3Monthly = toPrice(process.env.CUSTOM_3_MONTHLY_PRICE, 70)
+  const sessions5Monthly = toPrice(process.env.CUSTOM_5_MONTHLY_PRICE, 60)
+  const individualAnnual = individualMonthly * 12 * 0.9
 
   return (
     <Suspense fallback={<div className="flex items-center justify-center p-10"><span className="text-muted-foreground">Carregando dashboard...</span></div>}>

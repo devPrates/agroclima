@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
+import { MercadoPagoConfig, Preference } from "mercadopago"
 
 export async function POST(req: Request) {
   try {
@@ -9,15 +9,17 @@ export async function POST(req: Request) {
       description = "Plano Anual",
       payerEmail,
       externalReference,
-    }: { amount?: number; description?: string; payerEmail?: string; externalReference?: string } = body || {}
+      sessions,
+    }: { amount?: number; description?: string; payerEmail?: string; externalReference?: string; sessions?: number } = body || {}
 
     const token = process.env.MP_ACCESS_TOKEN || process.env.MERCADOPAGO_ACCESS_TOKEN
     if (!token) {
       return NextResponse.json({ error: "Access token ausente" }, { status: 500 })
     }
 
-    const successUrl = process.env.MP_SUCCESS_URL || `${process.env.NEXT_PUBLIC_APP_URL || ""}mercadopago/success`
-    const failureUrl = process.env.MP_FAILURE_URL || `${process.env.NEXT_PUBLIC_APP_URL || ""}mercadopago/failure`
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || ""
+    const successUrl = process.env.MP_SUCCESS_URL || (appUrl ? (appUrl.endsWith("/") ? `${appUrl}mercadopago/success` : `${appUrl}/mercadopago/success`) : "")
+    const failureUrl = process.env.MP_FAILURE_URL || (appUrl ? (appUrl.endsWith("/") ? `${appUrl}mercadopago/failure` : `${appUrl}/mercadopago/failure`) : "")
     const pendingUrl = process.env.MP_PENDING_URL || failureUrl
     const notificationUrl = process.env.MP_WEBHOOK_URL || `${process.env.NEXT_PUBLIC_APP_URL || ""}webhook/mercadopago`
 
@@ -25,60 +27,38 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "amount inválido" }, { status: 400 })
     }
 
-    const preferencePayload = {
-      items: [
-        {
-          title: description,
-          quantity: 1,
-          currency_id: "BRL",
-          unit_price: amount,
+    const mp = new MercadoPagoConfig({ accessToken: token })
+    const preference = new Preference(mp)
+    const data = await preference.create({
+      body: {
+        items: [
+          {
+            id: externalReference || "annual-plan",
+            title: description,
+            quantity: 1,
+            currency_id: process.env.SUBSCRIPTION_CURRENCY || "BRL",
+            unit_price: amount,
+          },
+        ],
+        payer: payerEmail ? { email: payerEmail } : undefined,
+        back_urls: {
+          success: successUrl,
+          failure: failureUrl,
+          pending: pendingUrl,
         },
-      ],
-      payer: payerEmail ? { email: payerEmail } : undefined,
-      back_urls: {
-        success: successUrl,
-        failure: failureUrl,
-        pending: pendingUrl,
+        auto_return: "approved",
+        external_reference: externalReference,
+        notification_url: notificationUrl,
+        // Carregar sessões diretamente no pagamento via metadata para evitar depender do banco
+        metadata: {
+          sessions,
+          description,
+          plan_type: "annual",
+        },
       },
-      auto_return: "approved",
-      external_reference: externalReference,
-      notification_url: notificationUrl,
-    }
-
-    const resp = await fetch("https://api.mercadopago.com/checkout/preferences", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(preferencePayload),
     })
 
-    const data = await resp.json()
-    if (!resp.ok) {
-      return NextResponse.json({ error: data?.message || "Falha ao criar preference", details: data }, { status: resp.status })
-    }
-
-    // Persistir intento de pagamento com status pendente
-    try {
-      await prisma.payment.create({
-        data: {
-          status: "pending",
-          amount,
-          currency: "BRL",
-          payerEmail,
-          externalReference,
-          preferenceId: data.id,
-          metadata: {
-            init_point: data.init_point,
-            sandbox_init_point: data.sandbox_init_point,
-            description,
-          },
-        },
-      })
-    } catch (dbErr) {
-      console.error("Falha ao persistir Payment pendente:", dbErr)
-    }
+    // Removido: persistência via Prisma para evitar erro de módulo ausente.
 
     return NextResponse.json({ id: data.id, init_point: data.init_point, sandbox_init_point: data.sandbox_init_point })
   } catch (e: any) {

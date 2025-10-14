@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { alterUserOnBackend } from "@/actions/user-actions"
+import { MercadoPagoConfig, Payment, PreApproval } from "mercadopago"
 
 function getQuery(url: string) {
   try {
@@ -8,6 +10,46 @@ function getQuery(url: string) {
   } catch {
     return new URLSearchParams()
   }
+}
+
+// Normaliza status vindos do Mercado Pago para o enum do Prisma
+function normalizeStatus(raw: any) {
+  const s = String(raw || "").toLowerCase()
+  switch (s) {
+    case "processed":
+      // MP pode retornar "processed" em authorized payments; tratamos como "approved"
+      return "approved"
+    case "canceled":
+      // Garantir grafia alinhada ao enum
+      return "cancelled"
+    case "approved":
+    case "pending":
+    case "authorized":
+    case "in_process":
+    case "rejected":
+    case "refunded":
+    case "charged_back":
+    case "cancelled":
+      return s
+    default:
+      return "pending"
+  }
+}
+
+// Extrai sessões de external_reference, no formato "...|sessions=3" ou "sessions=5"
+function parseSessionsFromExternalReference(ref?: string): number | undefined {
+  if (!ref || typeof ref !== "string") return undefined
+  const m = ref.match(/(?:^|[|&])sessions=(\d+)/i)
+  if (m) {
+    const s = Number(m[1])
+    if (s === 2 || s === 3 || s === 5) return s
+  }
+  return undefined
+}
+
+// Valida se um número pode ser usado como max_sessions
+function isValidSessions(n: any): n is number {
+  return n === 2 || n === 3 || n === 5
 }
 
 export async function POST(req: Request) {
@@ -30,13 +72,16 @@ export async function POST(req: Request) {
   let resource: any = null
   if (token && id && topic) {
     try {
-      let url: string | null = null
-      if (topic === "payment") url = `https://api.mercadopago.com/v1/payments/${id}`
-      else if (topic === "subscription_preapproval" || topic === "preapproval") url = `https://api.mercadopago.com/preapproval/${id}`
-      else if (topic === "subscription_authorized_payment" || topic === "authorized_payment") url = `https://api.mercadopago.com/authorized_payments/${id}`
-
-      if (url) {
-        const r = await fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+      const mp = new MercadoPagoConfig({ accessToken: token })
+      if (topic === "payment") {
+        const payment = new Payment(mp)
+        resource = await payment.get({ id: Number(id) })
+      } else if (topic === "subscription_preapproval" || topic === "preapproval") {
+        const preapproval = new PreApproval(mp)
+        resource = await preapproval.get({ id })
+      } else if (topic === "subscription_authorized_payment" || topic === "authorized_payment") {
+        // A SDK pode não ter um wrapper direto para authorized_payments; manter fallback HTTP
+        const r = await fetch(`https://api.mercadopago.com/authorized_payments/${id}`, { headers: { Authorization: `Bearer ${token}` } })
         resource = await r.json()
       }
     } catch (e) {
@@ -46,20 +91,39 @@ export async function POST(req: Request) {
 
   // Persistir/atualizar pagamento conforme o tópico
   try {
+    async function markUserPaidByEmail(email?: string, sessions?: number) {
+      if (!email) return
+      try {
+        const data: any = { pagante: "s" }
+        if (isValidSessions(sessions)) {
+          data.max_sessions = sessions
+        }
+        await prisma.user.update({ where: { login: email }, data })
+      } catch (e) {
+        // Usuário pode não existir localmente ainda; evitar quebra do webhook
+        console.error("Falha ao atualizar usuário como pagante:", e)
+      }
+    }
+
     if (topic === "payment" && resource) {
       const paymentId = String(resource.id)
-      const status = String(resource.status || "pending") as any
+      const status = normalizeStatus(resource.status || "pending") as any
       const amount = Number(resource.transaction_amount || resource.amount || 0)
       const currency = String(resource.currency_id || "BRL")
       const payerEmail = resource?.payer?.email || undefined
       const externalReference = resource?.external_reference || undefined
       const preferenceId = resource?.preference_id || undefined
       const orderId = resource?.order?.id ? String(resource.order.id) : undefined
+      const approvedAtStr = resource?.date_approved || undefined
+      const createdAtStr = resource?.date_created || undefined
+      const approvedAt = approvedAtStr ? new Date(approvedAtStr) : undefined
+      const createdAt = createdAtStr ? new Date(createdAtStr) : undefined
 
       // Tentar associar ao registro criado na criação da preferência
       if (preferenceId) {
         const existing = await prisma.payment.findFirst({ where: { preferenceId } })
         if (existing) {
+          const prevMeta: any = existing.metadata || {}
           await prisma.payment.update({
             where: { id: existing.id },
             data: {
@@ -72,13 +136,56 @@ export async function POST(req: Request) {
               preferenceId,
               orderId,
               metadata: {
+                ...prevMeta,
                 status_detail: resource?.status_detail,
               },
             },
           })
+
+          // Se pagamento aprovado, marcar usuário como pagante e definir sessões
+          if (status === "approved") {
+            // Priorizar derivação: external_reference -> metadata.sessions -> descrição
+            let sessionsForUser: number | undefined = parseSessionsFromExternalReference(externalReference)
+            if (!isValidSessions(sessionsForUser)) {
+              const sMeta = Number(prevMeta?.sessions)
+              if (isValidSessions(sMeta)) sessionsForUser = sMeta
+            }
+            if (!isValidSessions(sessionsForUser)) {
+              const desc = typeof prevMeta?.description === "string" ? prevMeta.description.toLowerCase() : ""
+              if (desc.includes("personalizado")) {
+                const m = desc.match(/(\d+)\s*sess/i)
+                if (m) {
+                  const s = Number(m[1])
+                  if (isValidSessions(s)) sessionsForUser = s
+                }
+              } else if (desc.includes("individual")) {
+                sessionsForUser = 2
+              }
+            }
+
+            await markUserPaidByEmail(payerEmail, sessionsForUser)
+
+            // Enviar PUT para backend externo identificando pelo login
+            if (payerEmail && isValidSessions(sessionsForUser)) {
+              try {
+                await alterUserOnBackend({ login: payerEmail, max_sessions: sessionsForUser, pagante: "s" })
+              } catch (e) {
+                console.error("Falha ao enviar PUT ao backend (approved/preferenceId):", e)
+              }
+            }
+
+            // Vincular pagamento ao usuário
+            if (payerEmail) {
+              const userRecord = await prisma.user.findUnique({ where: { login: payerEmail } })
+              if (userRecord) {
+                const assocId = `user-${userRecord.id}-payment-${existing.id}`
+                await prisma.$executeRaw`INSERT INTO "UserPayment" ("id", "userId", "paymentId") VALUES (${assocId}, ${userRecord.id}, ${existing.id}) ON CONFLICT ("userId", "paymentId") DO NOTHING`
+              }
+            }
+          }
         } else {
           // Caso não exista, criar pelo paymentId
-          await prisma.payment.upsert({
+          const saved = await prisma.payment.upsert({
             where: { paymentId },
             update: {
               status,
@@ -102,10 +209,54 @@ export async function POST(req: Request) {
               metadata: { status_detail: resource?.status_detail },
             },
           })
+
+          if (status === "approved") {
+            // Derivar sessões: external_reference -> metadata.sessions -> descrição
+            let sessionsForUser: number | undefined = parseSessionsFromExternalReference(externalReference)
+            const mpMeta = resource?.metadata || {}
+            if (!isValidSessions(sessionsForUser)) {
+              const sMeta = Number(mpMeta?.sessions)
+              if (isValidSessions(sMeta)) sessionsForUser = sMeta
+            }
+            if (!isValidSessions(sessionsForUser)) {
+              const descStr = String(
+                resource?.description || resource?.additional_info?.items?.[0]?.title || ""
+              ).toLowerCase()
+              if (descStr.includes("personalizado")) {
+                const m = descStr.match(/(\d+)\s*sess/i)
+                if (m) {
+                  const s = Number(m[1])
+                  if (isValidSessions(s)) sessionsForUser = s
+                }
+              } else if (descStr.includes("individual")) {
+                sessionsForUser = 2
+              }
+            }
+
+            await markUserPaidByEmail(payerEmail, sessionsForUser)
+
+            // PUT externo com sessões derivadas do recurso
+            if (payerEmail && isValidSessions(sessionsForUser)) {
+              try {
+                await alterUserOnBackend({ login: payerEmail, max_sessions: sessionsForUser, pagante: "s" })
+              } catch (e) {
+                console.error("Falha ao enviar PUT ao backend (approved/create-by-paymentId):", e)
+              }
+            }
+
+            // Vincular pagamento ao usuário
+            if (payerEmail) {
+              const userRecord = await prisma.user.findUnique({ where: { login: payerEmail } })
+              if (userRecord) {
+                const assocId = `user-${userRecord.id}-payment-${saved.id}`
+                await prisma.$executeRaw`INSERT INTO "UserPayment" ("id", "userId", "paymentId") VALUES (${assocId}, ${userRecord.id}, ${saved.id}) ON CONFLICT ("userId", "paymentId") DO NOTHING`
+              }
+            }
+          }
         }
       } else {
         // Sem preferenceId: garantir persistência via paymentId
-        await prisma.payment.upsert({
+        const saved = await prisma.payment.upsert({
           where: { paymentId },
           update: {
             status,
@@ -127,17 +278,55 @@ export async function POST(req: Request) {
             metadata: { status_detail: resource?.status_detail },
           },
         })
+
+        if (status === "approved") {
+          // Derivar sessões quando possível
+          let sessionsForUser: number | undefined = parseSessionsFromExternalReference(externalReference)
+          const mpMeta = resource?.metadata || {}
+          if (!isValidSessions(sessionsForUser)) {
+            const sMeta = Number(mpMeta?.sessions)
+            if (isValidSessions(sMeta)) sessionsForUser = sMeta
+          }
+          if (!isValidSessions(sessionsForUser)) {
+            const descStr = String(resource?.description || "").toLowerCase()
+            if (descStr.includes("personalizado")) {
+              const m = descStr.match(/(\d+)\s*sess/i)
+              if (m) {
+                const s = Number(m[1])
+                if (isValidSessions(s)) sessionsForUser = s
+              }
+            } else if (descStr.includes("individual")) {
+              sessionsForUser = 2
+            }
+          }
+
+          await markUserPaidByEmail(payerEmail, sessionsForUser)
+          if (payerEmail && isValidSessions(sessionsForUser)) {
+            try {
+              await alterUserOnBackend({ login: payerEmail, max_sessions: sessionsForUser, pagante: "s" })
+            } catch (e) {
+              console.error("Falha ao enviar PUT ao backend (approved/no-preferenceId):", e)
+            }
+          }
+          if (payerEmail) {
+            const userRecord = await prisma.user.findUnique({ where: { login: payerEmail } })
+            if (userRecord) {
+              const assocId = `user-${userRecord.id}-payment-${saved.id}`
+              await prisma.$executeRaw`INSERT INTO "UserPayment" ("id", "userId", "paymentId") VALUES (${assocId}, ${userRecord.id}, ${saved.id}) ON CONFLICT ("userId", "paymentId") DO NOTHING`
+            }
+          }
+        }
       }
     }
 
     // Assinaturas: preapproval
     if ((topic === "subscription_preapproval" || topic === "preapproval") && resource) {
       const paymentId = String(resource.id)
-      const status = String(resource.status || "authorized") as any
+      const status = normalizeStatus(resource.status || "authorized") as any
       const payerEmail = resource?.payer_email || undefined
       const externalReference = resource?.external_reference || undefined
 
-      await prisma.payment.upsert({
+      const saved = await prisma.payment.upsert({
         where: { paymentId },
         update: {
           status,
@@ -154,20 +343,103 @@ export async function POST(req: Request) {
           metadata: { type: "preapproval" },
         },
       })
+
+      // Preapproval autorizado: marcar como pagante, derivando sessões
+      if (status === "authorized") {
+        let sessionsForUser: number | undefined = parseSessionsFromExternalReference(externalReference)
+        const reasonStr = String(resource?.reason || "").toLowerCase()
+        if (!isValidSessions(sessionsForUser)) {
+          if (reasonStr.includes("personalizado")) {
+            const m = reasonStr.match(/(\d+)\s*sess/i)
+            if (m) {
+              const s = Number(m[1])
+              if (isValidSessions(s)) sessionsForUser = s
+            }
+          } else if (reasonStr.includes("individual")) {
+            sessionsForUser = 2
+          }
+        }
+        await markUserPaidByEmail(payerEmail, sessionsForUser)
+        if (payerEmail && isValidSessions(sessionsForUser)) {
+          try {
+            await alterUserOnBackend({ login: payerEmail, max_sessions: sessionsForUser, pagante: "s" })
+          } catch (e) {
+            console.error("Falha ao enviar PUT ao backend (preapproval/authorized):", e)
+          }
+        }
+        // Vincular preapproval ao usuário como um registro associado
+        if (payerEmail) {
+          const userRecord = await prisma.user.findUnique({ where: { login: payerEmail } })
+          if (userRecord) {
+            const assocId = `user-${userRecord.id}-payment-${saved.id}`
+            await prisma.$executeRaw`INSERT INTO "UserPayment" ("id", "userId", "paymentId") VALUES (${assocId}, ${userRecord.id}, ${saved.id}) ON CONFLICT ("userId", "paymentId") DO NOTHING`
+          }
+        }
+      }
     }
 
     // Autorização de pagamento recorrente
     if ((topic === "subscription_authorized_payment" || topic === "authorized_payment") && resource) {
       const paymentId = String(resource.id)
-      const status = String(resource.status || "approved") as any
+      const status = normalizeStatus(resource.status || "approved") as any
       const amount = Number(resource?.transaction_amount || 0)
       const currency = String(resource?.currency_id || "BRL")
+      const createdAtStr = resource?.date_created || undefined
+      const createdAt = createdAtStr ? new Date(createdAtStr) : undefined
 
-      await prisma.payment.upsert({
+      // Tentar obter detalhes do preapproval para inferir sessions e email
+      let derivedSessionsForUser: number | undefined
+      let derivedPayerEmail: string | undefined
+      try {
+        const preapprovalId = resource?.preapproval_id || resource?.preapproval?.id
+        if (preapprovalId && token) {
+          const mpCfg = new MercadoPagoConfig({ accessToken: token })
+          const preapproval = new PreApproval(mpCfg)
+          const pr = await preapproval.get({ id: preapprovalId })
+          derivedPayerEmail = pr?.payer_email || undefined
+          const extRef = pr?.external_reference || undefined
+          let sForUser: number | undefined = parseSessionsFromExternalReference(extRef)
+          if (!isValidSessions(sForUser)) {
+            const reasonStr = String(pr?.reason || "").toLowerCase()
+            if (reasonStr.includes("personalizado")) {
+              const m = reasonStr.match(/(\d+)\s*sess/i)
+              if (m) {
+                const s = Number(m[1])
+                if (isValidSessions(s)) sForUser = s
+              }
+            } else if (reasonStr.includes("individual")) {
+              sForUser = 2
+            }
+          }
+          derivedSessionsForUser = sForUser
+        }
+      } catch (e) {
+        console.error("Falha ao obter preapproval para authorized_payment:", e)
+      }
+
+      const saved = await prisma.payment.upsert({
         where: { paymentId },
         update: { status, amount, currency, metadata: { type: "authorized_payment" } },
         create: { paymentId, status, amount, currency, metadata: { type: "authorized_payment" } },
       })
+
+      // Caso não tenha vindo o evento de preapproval/authorized, garantir ajuste de usuário aqui
+      if (derivedPayerEmail) {
+        const sessionsForUser = isValidSessions(derivedSessionsForUser) ? derivedSessionsForUser : undefined
+        await markUserPaidByEmail(derivedPayerEmail, sessionsForUser)
+        if (isValidSessions(sessionsForUser)) {
+          try {
+            await alterUserOnBackend({ login: derivedPayerEmail, max_sessions: sessionsForUser, pagante: "s" })
+          } catch (e) {
+            console.error("Falha ao enviar PUT ao backend (authorized_payment):", e)
+          }
+        }
+        const userRecord = await prisma.user.findUnique({ where: { login: derivedPayerEmail } })
+        if (userRecord) {
+          const assocId = `user-${userRecord.id}-payment-${saved.id}`
+          await prisma.$executeRaw`INSERT INTO "UserPayment" ("id", "userId", "paymentId") VALUES (${assocId}, ${userRecord.id}, ${saved.id}) ON CONFLICT ("userId", "paymentId") DO NOTHING`
+        }
+      }
     }
   } catch (persistErr) {
     console.error("Falha ao persistir atualização de pagamento:", persistErr)

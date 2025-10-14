@@ -28,6 +28,7 @@ model Payment {
   id               String         @id @default(cuid())
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
+  performedAt      DateTime?
 
   status           PaymentStatus?
   amount           Decimal?       @db.Decimal(10, 2)
@@ -40,6 +41,8 @@ model Payment {
 
   externalReference String?
   metadata         Json?
+
+  userPayments     UserPayment[]
 }
 
 model User {
@@ -51,4 +54,19 @@ model User {
   login         String    @unique
   max_sessions  Int
   pagante       String    @db.VarChar(1) // valores esperados: "s" ou "n"
+
+  payments      UserPayment[]
+}
+
+model UserPayment {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+
+  userId     Int
+  paymentId  String
+
+  user       User     @relation(fields: [userId], references: [id])
+  payment    Payment  @relation(fields: [paymentId], references: [id])
+
+  @@unique([userId, paymentId])
 }

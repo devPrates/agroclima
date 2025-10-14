@@ -27,7 +27,7 @@ function FailureContent() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="rounded-md border p-4 text-sm">
+          <div className="rounded-md border p-4 text-sm text-center">
             <p className="font-medium mb-1">Motivo da falha</p>
             <p className="text-muted-foreground break-words">{reason}</p>
           </div>

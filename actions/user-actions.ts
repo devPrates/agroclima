@@ -63,3 +63,39 @@ export async function upsertUserFromApi(email: string) {
     return { success: false, error: "Falha ao persistir usuário" }
   }
 }
+
+/**
+ * Envia um PUT para o backend externo alterando max_sessions e pagante do usuário.
+ * O backend identifica pelo "login" no corpo, sem parâmetro na URL.
+ */
+export async function alterUserOnBackend(params: { login: string; max_sessions: number; pagante: "s" | "n" }) {
+  try {
+    const { login, max_sessions, pagante } = params
+    if (!login) return { success: false, error: "Login ausente" }
+
+    const url = process.env.ALTER_USER_URL || process.env.BACKEND_URL_PUT || "https://agroclima.net/alter_user.php"
+    const token = generateToken({ sub: 1, name: "AgroClima API" }, "1h")
+
+    const payload = { login, max_sessions, pagante }
+
+    const res = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+        "Accept": "application/json",
+      },
+      body: JSON.stringify(payload),
+    })
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => "")
+      return { success: false, error: `Falha no backend: ${res.status} ${text}` }
+    }
+
+    return { success: true }
+  } catch (error: any) {
+    console.error("Erro ao alterar usuário no backend:", error?.message || error)
+    return { success: false, error: "Falha ao enviar PUT ao backend" }
+  }
+}

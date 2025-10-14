@@ -10,7 +10,8 @@ function SuccessContent() {
   const params = useSearchParams()
   const paymentId = params.get("payment_id")
   const status = params.get("status")
-  const externalRef = params.get("external_reference")
+  // Não exibir referência na tela de sucesso
+  // const externalRef = params.get("external_reference")
 
   return (
     <div className="min-h-[calc(100vh-12rem)] flex items-center justify-center">
@@ -25,10 +26,10 @@ function SuccessContent() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {(paymentId || status || externalRef) && (
-            <div className="rounded-md border p-4 text-sm">
+          {(paymentId || status) && (
+            <div className="rounded-md border p-4 text-sm text-center">
               <p className="font-medium mb-2">Detalhes do pagamento</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-muted-foreground">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-muted-foreground justify-items-center">
                 {paymentId && (
                   <p>
                     <span className="text-foreground">ID:</span> {paymentId}
@@ -39,15 +40,10 @@ function SuccessContent() {
                     <span className="text-foreground">Status:</span> {status}
                   </p>
                 )}
-                {externalRef && (
-                  <p className="sm:col-span-2">
-                    <span className="text-foreground">Referência:</span> {externalRef}
-                  </p>
-                )}
               </div>
             </div>
           )}
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
             <Button asChild className="w-full sm:w-auto">
               <a href="https://agroclima.net/sbadmin2/perfil.php" target="_blank" rel="noopener noreferrer">
                 <LogIn className="mr-2 h-4 w-4" /> Acessar o sistema

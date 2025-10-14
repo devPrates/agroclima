@@ -12,6 +12,7 @@ export async function POST(req: Request) {
       frequency_type = "months",
       reason = "Assinatura AgroClima",
       external_reference,
+      sessions,
       back_url: backUrlFromBody,
     }: {
       payer_email?: string
@@ -21,6 +22,7 @@ export async function POST(req: Request) {
       frequency_type?: "days" | "months"
       reason?: string
       external_reference?: string
+      sessions?: number
       back_url?: string
     } = body || {}
 
@@ -64,6 +66,14 @@ export async function POST(req: Request) {
     const mp = new MercadoPagoConfig({ accessToken: token })
     const preApproval = new PreApproval(mp)
 
+    // Montar external_reference incluindo sessões quando fornecidas
+    let finalExternalRef = external_reference || payer_email || undefined
+    if (typeof sessions === "number" && sessions > 0) {
+      const baseRef = finalExternalRef || ""
+      // Evitar duplicação se já houver sessions= no ref
+      finalExternalRef = baseRef.includes("sessions=") ? baseRef : `${baseRef}|sessions=${sessions}`
+    }
+
     const data = await preApproval.create({
       body: {
         back_url: backUrl,
@@ -72,11 +82,11 @@ export async function POST(req: Request) {
           frequency,
           frequency_type,
           transaction_amount: amount,
-          currency_id: currency_id || process.env.MERCADOPAGO_SUBSCRIPTION_CURRENCY || "BRL",
+          currency_id: currency_id || process.env.SUBSCRIPTION_CURRENCY || "BRL",
         },
         payer_email,
         status: "pending",
-        external_reference,
+        external_reference: finalExternalRef,
       },
     })
 

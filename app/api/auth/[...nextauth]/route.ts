@@ -1,42 +1,44 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import jwt from "jsonwebtoken";
-import { upsertUserFromApi } from "@/actions/user-actions";
+import axios from "axios";
+import { generateToken } from "@/lib/jwt";
 
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
   providers: [
     Credentials({
-      name: "Email OTP",
+      name: "Email",
       credentials: {
         email: { label: "Email", type: "text" },
-        otp: { label: "OTP", type: "text" },
-        otpToken: { label: "OTP Token", type: "text" },
+        // otp: { label: "OTP", type: "text" },
+        // otpToken: { label: "OTP Token", type: "text" },
       },
       authorize: async (credentials) => {
         try {
-          const secret = process.env.JWT_SECRET;
-          if (!secret) {
-            throw new Error("JWT_SECRET not configured");
-          }
-
           const email = credentials?.email as string | undefined;
-          const otp = credentials?.otp as string | undefined;
-          const otpToken = credentials?.otpToken as string | undefined;
-
-          if (!email || !otp || !otpToken) {
+          if (!email) {
             return null;
           }
 
-          const decoded = jwt.verify(otpToken, secret) as any;
-          if (decoded?.email !== email) {
-            return null;
-          }
-          if (decoded?.otp !== otp) {
+          const baseUrl = process.env.USER_LOOKUP_URL;
+          if (!baseUrl) {
+            console.error("USER_LOOKUP_URL não configurado");
             return null;
           }
 
-          return { id: email, email } as any;
+          // Verifica o email na API externa
+          const token = generateToken({ sub: 1, name: "AgroClima API" }, "15m");
+          const url = `${baseUrl}${encodeURIComponent(email)}`;
+          const res = await axios.get(url, {
+            headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+            timeout: 10000,
+          });
+
+          if (res.status !== 200 || !res.data?.ok || !res.data?.user) {
+            return null;
+          }
+
+          return { id: res.data.user.id, email } as any;
         } catch (error) {
           console.error("NextAuth authorize error:", error);
           return null;
@@ -49,14 +51,8 @@ export const authOptions: NextAuthOptions = {
   },
   events: {
     async signIn({ user }) {
-      try {
-        const email = (user as any)?.email as string | undefined
-        if (email) {
-          await upsertUserFromApi(email)
-        }
-      } catch (e) {
-        console.error("Evento signIn: falha ao persistir usuário", e)
-      }
+      // Temporariamente desabilitado para evitar dependência do Prisma durante login
+      // Quando o Prisma Client estiver gerado, podemos reabilitar a persistência local.
     },
   },
 };

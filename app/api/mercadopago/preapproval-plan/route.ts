@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { MercadoPagoConfig, PreApprovalPlan } from "mercadopago"
 
 // Cria um plano de assinatura (preapproval_plan) no Mercado Pago
 // Valor: R$1,00 por mês, currency BRL, sem pró-rata
@@ -10,7 +11,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json().catch(() => ({}))
-    const envCurrency = process.env.MERCADOPAGO_SUBSCRIPTION_CURRENCY || "BRL"
+  const envCurrency = process.env.SUBSCRIPTION_CURRENCY || "BRL"
     const {
       reason = "Plano Individual AgroClima - R$1/mês",
       transaction_amount = 1,
@@ -35,47 +36,27 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "transaction_amount inválido" }, { status: 400 })
     }
 
-    const payload: any = {
-      reason,
-      auto_recurring: {
-        frequency,
-        frequency_type,
-        transaction_amount,
-        currency_id,
-        billing_day,
-        billing_day_proportional,
-      },
-    }
+    const mp = new MercadoPagoConfig({ accessToken: token })
+    const preApprovalPlan = new PreApprovalPlan(mp)
 
-    if (typeof free_trial_days === "number" && free_trial_days > 0) {
-      payload.free_trial = { frequency: free_trial_days, frequency_type: "days" }
-    }
-
-    const resp = await fetch("https://api.mercadopago.com/preapproval_plan", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+    const data = await preApprovalPlan.create({
+      body: {
+        reason,
+        auto_recurring: {
+          frequency,
+          frequency_type,
+          transaction_amount,
+          currency_id,
+          billing_day,
+          billing_day_proportional,
+        },
+        ...(typeof free_trial_days === "number" && free_trial_days > 0
+          ? { free_trial: { frequency: free_trial_days, frequency_type: "days" } }
+          : {}),
       },
-      body: JSON.stringify(payload),
     })
 
-    // Tenta ler o corpo como texto e depois parsear JSON para lidar com respostas não-JSON
-    const raw = await resp.text()
-    let data: any = null
-    try {
-      data = raw ? JSON.parse(raw) : null
-    } catch {
-      data = { raw }
-    }
-
-    if (!resp.ok) {
-      const message = (data && data.message) || (typeof data === "string" ? data : null) || "Falha ao criar preapproval_plan"
-      return NextResponse.json({ error: message, http_status: resp.status, details: data }, { status: resp.status })
-    }
-
-    // Retorna ID do plano para uso na criação da assinatura (preapproval)
-    return NextResponse.json({ id: data?.id, status: data?.status, auto_recurring: data?.auto_recurring })
+    return NextResponse.json({ id: data.id, status: data.status, auto_recurring: data.auto_recurring })
   } catch (e: any) {
     return NextResponse.json({ error: e?.message || "Erro interno" }, { status: 500 })
   }

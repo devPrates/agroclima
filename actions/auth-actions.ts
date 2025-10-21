@@ -4,6 +4,7 @@ import axios from "axios"
 import { Resend } from "resend"
 import { generateToken } from "@/lib/jwt"
 import jwt from "jsonwebtoken"
+import crypto from "crypto"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -39,8 +40,8 @@ export async function sendEmailOtp(email: string) {
     })
 
     // Se não for 200 OK, tratar como não encontrado
-    if (response.status !== 200) {
-      return { success: false, error: "Email não encontrado ou inválido" }
+    if (response.status !== 200 || !response.data?.ok || !response.data?.user) {
+      return { success: false, error: "Usuário não encontrado. Crie uma conta para continuar." }
     }
 
     // Gerar um código OTP de 6 dígitos
@@ -56,7 +57,7 @@ export async function sendEmailOtp(email: string) {
 
     if (error) {
       console.error("Erro ao enviar OTP por email:", error)
-      return { success: false, error: "Falha ao enviar o email de OTP" }
+      return { success: false, error: "Falha ao enviar o código de login. Tente novamente." }
     }
 
     console.log("OTP enviado com sucesso:", data)
@@ -67,22 +68,31 @@ export async function sendEmailOtp(email: string) {
       return { success: false, error: "JWT_SECRET não configurado nas variáveis de ambiente" }
     }
 
+    // Criar hash do OTP para não expor o código ao cliente
+    const otpHash = crypto.createHmac("sha256", jwtSecret).update(otp).digest("hex")
+
     const otpToken = jwt.sign(
-      { email, otp },
+      { email, otpHash },
       jwtSecret,
       { algorithm: "HS256", expiresIn: "5m" }
     )
 
-    // Retornar OTP e token SOMENTE para fins de desenvolvimento/validação de interface
-    // Em produção, NÃO retorne o código ao cliente; use validação no servidor.
-    return { success: true, message: "Código OTP enviado por email.", otp, otpToken }
+    // Em produção, NÃO retorne o código ao cliente; somente o token
+    return { success: true, message: "Código de login enviado por e-mail.", otpToken }
   } catch (error: any) {
     console.error("Erro na server action de OTP:", error?.message || error)
-    if (error?.response) {
-      console.error("Status:", error.response.status)
-      console.error("Data:", error.response.data)
+    const status = error?.response?.status
+    const data = error?.response?.data
+    if (status) {
+      console.error("Status:", status)
+      console.error("Data:", data)
+      if (status === 404) {
+        // Email não existe na API -> orientar criação de conta
+        return { success: false, error: "Usuário não encontrado. Crie uma conta para continuar." }
+      }
     }
-    return { success: false, error: "Erro interno do servidor" }
+    // Outros erros genéricos
+    return { success: false, error: "Falha ao enviar o código de login. Tente novamente." }
   }
 }
 

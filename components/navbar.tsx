@@ -129,6 +129,9 @@ export function Navbar() {
             <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
               {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </Button>
+            <Button variant="outline" size="sm" onClick={() => router.push('/planos')}>
+              Criar conta
+            </Button>
             <Button variant="default" size="sm" onClick={() => router.push('/login')}>
               Entrar
             </Button>
@@ -171,7 +174,10 @@ export function Navbar() {
                   </motion.button>
                 ))}
                 
-                <div className="pt-4 border-t">
+                <div className="pt-4 border-t space-y-2">
+                  <Button variant="outline" size="sm" className="w-full" onClick={() => { router.push('/planos'); setIsOpen(false); }}>
+                    Criar conta
+                  </Button>
                   <Button variant="default" size="sm" className="w-full" onClick={() => { router.push('/login'); setIsOpen(false); }}>
                     Entrar
                   </Button>

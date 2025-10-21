@@ -46,9 +46,9 @@ export function DashboardContent({ user, payerEmail, monthlyPrice = 25, annualPr
     ? "—"
     : user.pagante === "n"
       ? "Gratuito"
-      : user.max_sessions > 1
-        ? "Personalizado"
-        : "Individual"
+      : user.max_sessions === 2
+        ? "Individual"
+        : "Personalizado"
 
   return (
     <div className="min-h-screen p-2 md:p-6">
@@ -64,9 +64,9 @@ export function DashboardContent({ user, payerEmail, monthlyPrice = 25, annualPr
                 const planType = user
                   ? user.pagante === "n"
                     ? "Gratuito"
-                    : user.max_sessions > 1
-                    ? "Personalizado"
-                    : "Individual"
+                    : user.max_sessions === 2
+                    ? "Individual"
+                    : "Personalizado"
                   : null
 
                 if (!planType) {
@@ -154,6 +154,10 @@ export function DashboardContent({ user, payerEmail, monthlyPrice = 25, annualPr
                 annualPrice={annualPrice}
                 billingCycle={billingCycle}
                 onBillingCycleChange={setBillingCycle}
+                payerEmail={payerEmail}
+                currentSessions={user?.max_sessions ?? 2}
+                sessions3Monthly={sessions3Monthly}
+                sessions5Monthly={sessions5Monthly}
               />
 
               <BillingHistory payments={payments} />

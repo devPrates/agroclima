@@ -13,6 +13,15 @@ type UserProfile = {
 } | null
 
 export function ProfileSection({ user }: { user: UserProfile }) {
+  // Derivar rótulo do plano atual no Perfil
+  const planLabel = !user
+    ? "—"
+    : user.pagante === "n"
+      ? "Gratuito"
+      : user.max_sessions > 1
+        ? "Personalizado"
+        : "Individual"
+
   return (
     <Card>
       <CardHeader>
@@ -48,7 +57,7 @@ export function ProfileSection({ user }: { user: UserProfile }) {
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="perfil-plano">Plano</Label>
-                  <Input id="perfil-plano" value={user.pagante === "n" ? "Gratuito" : "Pago"} disabled />
+                  <Input id="perfil-plano" value={planLabel} disabled />
                   {user.pagante === "n" && (
                     <p className="text-sm text-muted-foreground">Seu plano atual é gratuito.</p>
                   )}

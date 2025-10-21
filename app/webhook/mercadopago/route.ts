@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { alterUserOnBackend } from "@/actions/user-actions"
+import { alterUserOnBackend, upsertUserFromApi } from "@/actions/user-actions"
 import { MercadoPagoConfig, Payment, PreApproval } from "mercadopago"
 
 function getQuery(url: string) {
@@ -67,6 +67,7 @@ export async function POST(req: Request) {
 
   // TODO: validar assinatura (se configurado). Por ora, apenas loga.
   const meta = { topic, id, signature: Boolean(signature), requestId }
+   console.log("[MP] webhook recebido", { url: req.url, topic, id, hasSignature: Boolean(signature), requestId })
 
   // Busca detalhes do recurso quando possível
   let resource: any = null
@@ -84,24 +85,45 @@ export async function POST(req: Request) {
         const r = await fetch(`https://api.mercadopago.com/authorized_payments/${id}`, { headers: { Authorization: `Bearer ${token}` } })
         resource = await r.json()
       }
+      console.log("[MP] recurso obtido", { topic, id, ok: resource && !resource.error, keys: resource ? Object.keys(resource) : [] })
     } catch (e) {
+      console.error("[MP] falha ao obter recurso", { topic, id, error: String(e) })
       resource = { error: "Falha ao obter recurso" }
     }
+  } else {
+    console.warn("[MP] sem token/id/topic para obter recurso", { hasToken: Boolean(token), id, topic })
   }
 
   // Persistir/atualizar pagamento conforme o tópico
   try {
     async function markUserPaidByEmail(email?: string, sessions?: number) {
-      if (!email) return
+      if (!email) {
+        console.warn("[MP] markUserPaidByEmail sem email", { sessions })
+        return
+      }
       try {
         const data: any = { pagante: "s" }
         if (isValidSessions(sessions)) {
           data.max_sessions = sessions
         }
+        console.log("[MP] atualizando usuário como pagante", { email, sessions })
         await prisma.user.update({ where: { login: email }, data })
+        console.log("[MP] usuário atualizado com sucesso", { email })
       } catch (e) {
-        // Usuário pode não existir localmente ainda; evitar quebra do webhook
-        console.error("Falha ao atualizar usuário como pagante:", e)
+        console.error("[MP] falha ao atualizar usuário como pagante", { email, error: String(e) })
+        try {
+          console.log("[MP] tentando upsert do usuário via API", { email })
+          const res = await upsertUserFromApi(email)
+          console.log("[MP] resultado upsert API", { email, success: Boolean(res?.success) })
+          if (res?.success) {
+            const data2: any = { pagante: "s" }
+            if (isValidSessions(sessions)) data2.max_sessions = sessions
+            await prisma.user.update({ where: { login: email }, data: data2 })
+            console.log("[MP] usuário atualizado após upsert", { email })
+          }
+        } catch (e2) {
+          console.error("[MP] retry de atualização após upsert falhou", { email, error: String(e2) })
+        }
       }
     }
 
@@ -118,6 +140,9 @@ export async function POST(req: Request) {
       const createdAtStr = resource?.date_created || undefined
       const approvedAt = approvedAtStr ? new Date(approvedAtStr) : undefined
       const createdAt = createdAtStr ? new Date(createdAtStr) : undefined
+      const loginFromExternalRef = externalReference ? String(externalReference).split("|")[0] : undefined
+      const loginEmail = payerEmail || loginFromExternalRef
+      console.log("[MP] processando payment", { paymentId, status, externalReference, preferenceId, payerEmail, loginEmail })
 
       // Tentar associar ao registro criado na criação da preferência
       if (preferenceId) {
@@ -163,20 +188,21 @@ export async function POST(req: Request) {
               }
             }
 
-            await markUserPaidByEmail(payerEmail, sessionsForUser)
+            console.log("pagamento aprovado", { paymentId, login: loginEmail, sessionsForUser })
+            await markUserPaidByEmail(loginEmail, sessionsForUser)
 
             // Enviar PUT para backend externo identificando pelo login
-            if (payerEmail && isValidSessions(sessionsForUser)) {
+            if (loginEmail && isValidSessions(sessionsForUser)) {
               try {
-                await alterUserOnBackend({ login: payerEmail, max_sessions: sessionsForUser, pagante: "s" })
+                await alterUserOnBackend({ login: loginEmail, max_sessions: sessionsForUser, pagante: "s" })
               } catch (e) {
                 console.error("Falha ao enviar PUT ao backend (approved/preferenceId):", e)
               }
             }
 
             // Vincular pagamento ao usuário
-            if (payerEmail) {
-              const userRecord = await prisma.user.findUnique({ where: { login: payerEmail } })
+            if (loginEmail) {
+              const userRecord = await prisma.user.findUnique({ where: { login: loginEmail } })
               if (userRecord) {
                 const assocId = `user-${userRecord.id}-payment-${existing.id}`
                 await prisma.$executeRaw`INSERT INTO "UserPayment" ("id", "userId", "paymentId") VALUES (${assocId}, ${userRecord.id}, ${existing.id}) ON CONFLICT ("userId", "paymentId") DO NOTHING`
@@ -233,20 +259,21 @@ export async function POST(req: Request) {
               }
             }
 
-            await markUserPaidByEmail(payerEmail, sessionsForUser)
+            console.log("pagamento aprovado", { paymentId, login: loginEmail, sessionsForUser })
+            await markUserPaidByEmail(loginEmail, sessionsForUser)
 
             // PUT externo com sessões derivadas do recurso
-            if (payerEmail && isValidSessions(sessionsForUser)) {
+            if (loginEmail && isValidSessions(sessionsForUser)) {
               try {
-                await alterUserOnBackend({ login: payerEmail, max_sessions: sessionsForUser, pagante: "s" })
+                await alterUserOnBackend({ login: loginEmail, max_sessions: sessionsForUser, pagante: "s" })
               } catch (e) {
                 console.error("Falha ao enviar PUT ao backend (approved/create-by-paymentId):", e)
               }
             }
 
             // Vincular pagamento ao usuário
-            if (payerEmail) {
-              const userRecord = await prisma.user.findUnique({ where: { login: payerEmail } })
+            if (loginEmail) {
+              const userRecord = await prisma.user.findUnique({ where: { login: loginEmail } })
               if (userRecord) {
                 const assocId = `user-${userRecord.id}-payment-${saved.id}`
                 await prisma.$executeRaw`INSERT INTO "UserPayment" ("id", "userId", "paymentId") VALUES (${assocId}, ${userRecord.id}, ${saved.id}) ON CONFLICT ("userId", "paymentId") DO NOTHING`
@@ -300,16 +327,17 @@ export async function POST(req: Request) {
             }
           }
 
-          await markUserPaidByEmail(payerEmail, sessionsForUser)
-          if (payerEmail && isValidSessions(sessionsForUser)) {
+          console.log("pagamento aprovado", { paymentId, login: loginEmail, sessionsForUser })
+          await markUserPaidByEmail(loginEmail, sessionsForUser)
+          if (loginEmail && isValidSessions(sessionsForUser)) {
             try {
-              await alterUserOnBackend({ login: payerEmail, max_sessions: sessionsForUser, pagante: "s" })
+              await alterUserOnBackend({ login: loginEmail, max_sessions: sessionsForUser, pagante: "s" })
             } catch (e) {
               console.error("Falha ao enviar PUT ao backend (approved/no-preferenceId):", e)
             }
           }
-          if (payerEmail) {
-            const userRecord = await prisma.user.findUnique({ where: { login: payerEmail } })
+          if (loginEmail) {
+            const userRecord = await prisma.user.findUnique({ where: { login: loginEmail } })
             if (userRecord) {
               const assocId = `user-${userRecord.id}-payment-${saved.id}`
               await prisma.$executeRaw`INSERT INTO "UserPayment" ("id", "userId", "paymentId") VALUES (${assocId}, ${userRecord.id}, ${saved.id}) ON CONFLICT ("userId", "paymentId") DO NOTHING`
@@ -390,13 +418,13 @@ export async function POST(req: Request) {
       // Tentar obter detalhes do preapproval para inferir sessions e email
       let derivedSessionsForUser: number | undefined
       let derivedPayerEmail: string | undefined
+      let loginEmailAuth: string | undefined
       try {
         const preapprovalId = resource?.preapproval_id || resource?.preapproval?.id
         if (preapprovalId && token) {
           const mpCfg = new MercadoPagoConfig({ accessToken: token })
           const preapproval = new PreApproval(mpCfg)
           const pr = await preapproval.get({ id: preapprovalId })
-          derivedPayerEmail = pr?.payer_email || undefined
           const extRef = pr?.external_reference || undefined
           let sForUser: number | undefined = parseSessionsFromExternalReference(extRef)
           if (!isValidSessions(sForUser)) {
@@ -412,9 +440,12 @@ export async function POST(req: Request) {
             }
           }
           derivedSessionsForUser = sForUser
+          derivedPayerEmail = pr?.payer_email || undefined
+          const loginFromExt = extRef ? String(extRef).split("|")[0] : undefined
+          loginEmailAuth = derivedPayerEmail || loginFromExt
         }
       } catch (e) {
-        console.error("Falha ao obter preapproval para authorized_payment:", e)
+        console.error("[MP] falha ao obter preapproval para authorized_payment", e)
       }
 
       const saved = await prisma.payment.upsert({
@@ -423,18 +454,18 @@ export async function POST(req: Request) {
         create: { paymentId, status, amount, currency, metadata: { type: "authorized_payment" } },
       })
 
-      // Caso não tenha vindo o evento de preapproval/authorized, garantir ajuste de usuário aqui
-      if (derivedPayerEmail) {
+      // Ajuste de usuário baseado em email derivado
+      if (loginEmailAuth) {
         const sessionsForUser = isValidSessions(derivedSessionsForUser) ? derivedSessionsForUser : undefined
-        await markUserPaidByEmail(derivedPayerEmail, sessionsForUser)
+        await markUserPaidByEmail(loginEmailAuth, sessionsForUser)
         if (isValidSessions(sessionsForUser)) {
           try {
-            await alterUserOnBackend({ login: derivedPayerEmail, max_sessions: sessionsForUser, pagante: "s" })
+            await alterUserOnBackend({ login: loginEmailAuth, max_sessions: sessionsForUser, pagante: "s" })
           } catch (e) {
-            console.error("Falha ao enviar PUT ao backend (authorized_payment):", e)
+            console.error("Falha ao enviar PUT ao backend (authorized_payment)", e)
           }
         }
-        const userRecord = await prisma.user.findUnique({ where: { login: derivedPayerEmail } })
+        const userRecord = await prisma.user.findUnique({ where: { login: loginEmailAuth } })
         if (userRecord) {
           const assocId = `user-${userRecord.id}-payment-${saved.id}`
           await prisma.$executeRaw`INSERT INTO "UserPayment" ("id", "userId", "paymentId") VALUES (${assocId}, ${userRecord.id}, ${saved.id}) ON CONFLICT ("userId", "paymentId") DO NOTHING`

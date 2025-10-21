@@ -49,6 +49,11 @@ export async function POST(req: Request) {
         auto_return: "approved",
         external_reference: externalReference,
         notification_url: notificationUrl,
+        // Permitir cartão e PIX explicitamente (sem exclusões)
+        payment_methods: {
+          excluded_payment_types: [],
+          excluded_payment_methods: [],
+        },
         // Carregar sessões diretamente no pagamento via metadata para evitar depender do banco
         metadata: {
           sessions,

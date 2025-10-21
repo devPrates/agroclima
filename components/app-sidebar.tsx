@@ -17,7 +17,7 @@ import { useSearchParams } from "next/navigation"
 
 export function AppSidebar() {
   const searchParams = useSearchParams()
-  const currentTab = searchParams.get("tab") ?? "plan"
+  const currentTab = searchParams.get("tab") ?? "dashboard"
 
   return (
     <Sidebar collapsible="icon">

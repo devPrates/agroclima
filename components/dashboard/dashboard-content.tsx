@@ -22,8 +22,10 @@ type UserProfile = {
 
 type Section = "dashboard" | "plan" | "perfil"
 
-export function DashboardContent({ user, payerEmail, monthlyPrice = 25, annualPrice = 300, sessions3Monthly = 70, sessions5Monthly = 60 }: { user: UserProfile, payerEmail?: string, monthlyPrice?: number, annualPrice?: number, sessions3Monthly?: number, sessions5Monthly?: number }) {
-  const [section, setSection] = useState<Section>("plan")
+type PaymentRow = { name: string; amount: number; date: string }
+
+export function DashboardContent({ user, payerEmail, monthlyPrice = 25, annualPrice = 300, sessions3Monthly = 70, sessions5Monthly = 60, payments = [] }: { user: UserProfile, payerEmail?: string, monthlyPrice?: number, annualPrice?: number, sessions3Monthly?: number, sessions5Monthly?: number, payments?: PaymentRow[] }) {
+  const [section, setSection] = useState<Section>("dashboard")
   const [mounted, setMounted] = useState(false)
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -38,6 +40,15 @@ export function DashboardContent({ user, payerEmail, monthlyPrice = 25, annualPr
       setSection(tab)
     }
   }, [searchParams])
+
+  // Derivar rótulo de plano atual pelo usuário
+  const currentPlanLabel = !user
+    ? "—"
+    : user.pagante === "n"
+      ? "Gratuito"
+      : user.max_sessions > 1
+        ? "Personalizado"
+        : "Individual"
 
   return (
     <div className="min-h-screen p-2 md:p-6">
@@ -111,14 +122,33 @@ export function DashboardContent({ user, payerEmail, monthlyPrice = 25, annualPr
                   )
                 }
 
-                // Personalizado
-                return <PersonalizedActiveCard />
+                // Personalizado: mostrar cartão de upsell se houver plano superior (ex.: 3 -> 5 sessões)
+                return (
+                  <>
+                    <PersonalizedActiveCard />
+                    {user && user.max_sessions < 5 && (
+                      <div className="space-y-4">
+                        <PlanCardCustom
+                          customSessions={"5"}
+                          onCustomSessionsChange={setCustomSessions}
+                          billingCycle={billingCycle}
+                          onBillingCycleChange={setBillingCycle}
+                          sessions3Monthly={sessions3Monthly}
+                          sessions5Monthly={sessions5Monthly}
+                          payerEmail={payerEmail}
+                          checkingOut={checkingOut}
+                          setCheckingOut={setCheckingOut}
+                        />
+                      </div>
+                    )}
+                  </>
+                )
               })()}
             </>
           ) : section === "plan" ? (
             <>
               <PlanUpgradeCard
-                planLabel={user ? (user.pagante === "n" ? "Gratuito" : "Pago") : "—"}
+                planLabel={currentPlanLabel}
                 isPaid={Boolean(user && user.pagante !== "n")}
                 monthlyPrice={monthlyPrice}
                 annualPrice={annualPrice}
@@ -126,7 +156,7 @@ export function DashboardContent({ user, payerEmail, monthlyPrice = 25, annualPr
                 onBillingCycleChange={setBillingCycle}
               />
 
-              <BillingHistory />
+              <BillingHistory payments={payments} />
 
               <CancelPlanCard disabled={!user || user.pagante === "n"} />
             </>

@@ -35,7 +35,7 @@ export default function AboutPage() {
         {/* Cabeçalho de blog */}
         <div className="max-w-3xl mx-auto">
           <motion.header initial="hidden" animate="visible" variants={staggerContainer} className="space-y-4">
-            <motion.h1 variants={fadeInUp} className="text-3xl md:text-4xl font-bold">
+            <motion.h1 variants={fadeInUp} className="mt-10 md:mt-16 text-3xl md:text-4xl font-bold">
               Estações Meteorológicas AgroClima.NET: funcionalidades e benefícios
             </motion.h1>
             <motion.p variants={fadeIn} className="text-muted-foreground">
@@ -89,10 +89,10 @@ export default function AboutPage() {
           </motion.section>
 
           {/* Cards informativos por funcionalidade (sem imagens, com ícones) */}
-          <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr items-stretch">
             {features.map((f) => (
-              <motion.div key={f.title} variants={staggerItem}>
-                <Card>
+              <motion.div key={f.title} variants={staggerItem} className="h-full">
+                <Card className="h-full flex flex-col">
                   <CardHeader className="pb-2">
                     <div className="flex items-center gap-3">
                       <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
@@ -101,7 +101,7 @@ export default function AboutPage() {
                       <CardTitle className="text-lg">{f.title}</CardTitle>
                     </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="flex-1">
                     <p className="text-sm text-muted-foreground">{f.description}</p>
                   </CardContent>
                 </Card>

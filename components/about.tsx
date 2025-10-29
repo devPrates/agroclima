@@ -5,10 +5,13 @@ import { useInView } from "framer-motion"
 import { useRef } from "react"
 import Image from "next/image"
 import { Users, MapPin, Calendar, Cpu } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
 
 export function About() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true })
+  const router = useRouter()
 
   return (
     <section id="about" ref={ref} className="py-20 bg-muted/50">
@@ -23,7 +26,7 @@ export function About() {
           >
             <div className="relative h-[34rem] rounded-lg overflow-hidden shadow-2xl">
               <Image
-                src="/estacao-solar.jpeg"
+                src="/nova-estacao.jpeg"
                 alt="Estação Meteorológica Agroclima"
                 fill
                 className="object-contains"
@@ -56,17 +59,6 @@ export function About() {
               Somos uma empresa especializada em soluções meteorológicas para o agronegócio, localizada em Naviraí/MS.
               Com mais de 05 anos de experiência no mercado, oferecemos estações meteorológicas de alta precisão que
               auxiliam produtores rurais na tomada de decisões estratégicas para suas culturas.
-            </motion.p>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ duration: 0.8, delay: 0.8 }}
-              className="text-lg text-muted-foreground text-justify md:text-left"
-            >
-              Nossa missão é democratizar o acesso à informação meteorológica de qualidade, contribuindo para uma
-              agricultura mais sustentável e produtiva. Utilizamos tecnologia de ponta para fornecer dados precisos e em
-              tempo real.
             </motion.p>
 
             <motion.div
@@ -103,6 +95,19 @@ export function About() {
                   <div className="text-sm text-muted-foreground">Sempre disponível</div>
                 </div>
               </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+              transition={{ duration: 0.8, delay: 1.2 }}
+            >
+              <Button
+                variant="default"
+                onClick={() => router.push('/about')}
+              >
+                Ver Mais Sobre
+              </Button>
             </motion.div>
           </motion.div>
         </div>

@@ -6,6 +6,7 @@ import { Menu, X, Sun, Moon } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import Image from "next/image"
 import clsx from "clsx"
 
@@ -129,10 +130,22 @@ export function Navbar() {
             <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
               {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </Button>
-            <Button variant="outline" size="sm" onClick={() => router.push('/planos')}>
-              Criar conta
-            </Button>
-            <Button variant="default" size="sm" onClick={() => router.push('/login')}>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">Minha Conta</Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => router.push('/planos')}>Criar conta</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/login')}>Administrar Conta</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => {
+                window.location.href = 'https://agroclima.net/sbadmin2/login.html'
+              }}
+            >
               Entrar
             </Button>
           </div>
@@ -175,10 +188,28 @@ export function Navbar() {
                 ))}
                 
                 <div className="pt-4 border-t space-y-2">
-                  <Button variant="outline" size="sm" className="w-full" onClick={() => { router.push('/planos'); setIsOpen(false); }}>
-                    Criar conta
-                  </Button>
-                  <Button variant="default" size="sm" className="w-full" onClick={() => { router.push('/login'); setIsOpen(false); }}>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="w-full">Minha conta</Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="min-w-[200px]">
+                      <DropdownMenuItem onClick={() => { router.push('/planos'); setIsOpen(false); }}>
+                        Criar conta
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => { router.push('/login'); setIsOpen(false); }}>
+                        Administrar Conta
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => {
+                      setIsOpen(false)
+                      window.location.href = 'https://agroclima.net/sbadmin2/login.html'
+                    }}
+                  >
                     Entrar
                   </Button>
                 </div>

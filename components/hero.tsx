@@ -2,13 +2,19 @@
 
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { ChevronRight } from "lucide-react"
 import { fadeIn, fadeInUp, staggerContainer, staggerItem } from "@/lib/animations"
 import { WeatherTable } from "@/components/weather-table"
 
 export function Hero() {
   const scrollToContact = () => {
     const element = document.querySelector("#contact")
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" })
+    }
+  }
+
+  const scrollToFeatures = () => {
+    const element = document.querySelector("#features")
     if (element) {
       element.scrollIntoView({ behavior: "smooth" })
     }
@@ -36,7 +42,7 @@ export function Hero() {
               >
                 <div className="w-2 h-2 bg-blue-500 rounded-full mr-3" />
                 <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                  Agroclima • Tecnologia Meteorológica Avançada
+                  Agroclima.NET
                 </span>
               </motion.div>
 
@@ -73,17 +79,20 @@ export function Hero() {
               <motion.div variants={fadeIn}>
                 <Button
                   size="lg"
-                  onClick={() => scrollToContact()}
+                  onClick={() => {
+                    window.location.href = "https://agroclima.net/sbadmin2/perfil.php"
+                  }}
                 >
-                  Explorar Produtos
+                  Explorar Estações
                 </Button>
               </motion.div>
               <motion.div variants={fadeIn}>
                 <Button
                   variant="outline"
                   size="lg"
+                  onClick={scrollToFeatures}
                 >
-                  Solicitar Demo
+                  Saiba Mais
                 </Button>
               </motion.div>
             </motion.div>

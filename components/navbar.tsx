@@ -207,7 +207,7 @@ export function Navbar() {
                     className="w-full"
                     onClick={() => {
                       setIsOpen(false)
-                      window.location.href = 'https://agroclima.net/sbadmin2/login.html'
+                      window.location.href = 'https://agroclima.net/hml/sbadmin2/login.html'
                     }}
                   >
                     Entrar

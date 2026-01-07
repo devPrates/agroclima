@@ -143,7 +143,7 @@ export function Navbar() {
               variant="default"
               size="sm"
               onClick={() => {
-                window.location.href = 'https://agroclima.net/sbadmin2/login.html'
+                window.location.href = 'https://agroclima.net/hml/sbadmin2/login.html'
               }}
             >
               Entrar

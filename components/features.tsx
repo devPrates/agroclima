@@ -90,7 +90,7 @@ export function Features() {
           >
             <div className="relative h-96 w-full">
               <Image
-                src="/weather-station.png"
+                src="/nova-estação.png"
                 alt="Estação Meteorológica Central"
                 fill
                 className="object-contain"

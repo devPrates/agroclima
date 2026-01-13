@@ -1,26 +1,26 @@
 const logos = [
     {
-      src: "https://placehold.co/158x60",
+      src: "/copasul.png",
       alt: "Transistor",
     },
     {
-      src: "https://placehold.co/158x60",
+      src: "/porto-camargo.png",
       alt: "Reform",
     },
     {
-      src: "https://placehold.co/158x60",
+      src: "/copasul.png",
       alt: "Tuple",
     },
     {
-      src: "https://placehold.co/158x60",
+      src: "/porto-camargo.png",
       alt: "SavvyCal",
     },
     {
-      src: "https://placehold.co/158x60",
+      src: "/copasul.png",
       alt: "Statamic",
     },
     {
-      src: "https://placehold.co/158x60",
+      src: "/porto-camargo.png",
       alt: "Laravel",
     },
   ];

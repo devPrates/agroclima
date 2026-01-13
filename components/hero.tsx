@@ -80,7 +80,7 @@ export function Hero() {
                 <Button
                   size="lg"
                   onClick={() => {
-                    window.location.href = "https://agroclima.net/sbadmin2/perfil.php"
+                    window.location.href = "https://agroclima.net/sbadmin2/dashboard.php"
                   }}
                 >
                   Explorar Estações

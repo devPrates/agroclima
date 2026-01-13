@@ -69,7 +69,7 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton asChild tooltip="Acessar Estações">
                   <a
-                    href="https://agroclima.net/sbadmin2/perfil.php"
+                    href="https://agroclima.net/hml/sbadmin2/login.html"
                     target="_blank"
                     rel="noopener noreferrer"
                   >

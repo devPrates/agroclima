@@ -15,9 +15,6 @@ export function PersonalizedActiveCard() {
           <Button asChild>
             <a href="/dashboard?tab=plan">Ver plano e faturamento</a>
           </Button>
-          <Button variant="outline" asChild>
-            <a href="https://agroclima.net/sbadmin2/perfil.php" target="_blank" rel="noopener noreferrer">Acessar o sistema</a>
-          </Button>
         </div>
       </CardContent>
     </Card>

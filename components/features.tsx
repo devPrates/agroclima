@@ -88,12 +88,13 @@ export function Features() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="relative"
           >
-            <div className="relative h-96 w-full">
+            <div className="relative h-96 w-full flex items-center justify-center">
               <Image
-                src="/nova-estação.png"
+                src="/features-estacao.jpg"
                 alt="Estação Meteorológica Central"
-                fill
-                className="object-contain"
+                width={600}
+                height={800}
+                className="max-h-full w-auto object-contain rounded-lg"
               />
             </div>
           </motion.div>

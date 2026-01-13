@@ -35,7 +35,7 @@ export default function Home() {
       <Features />
       <Pricing />
       <Contact />
-      <ChatBot />
+      {/** <ChatBot /> */}  
       <ScrollIndicator />
     </main>
   )

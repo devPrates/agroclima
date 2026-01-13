@@ -80,7 +80,7 @@ export function Hero() {
                 <Button
                   size="lg"
                   onClick={() => {
-                    window.location.href = "https://agroclima.net/sbadmin2/dashboard.php"
+                    window.location.href = "http://agroclima.net/propriedades/portocamargo.php"
                   }}
                 >
                   Explorar Estações

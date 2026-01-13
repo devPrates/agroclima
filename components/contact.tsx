@@ -21,6 +21,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { MapPin, Phone, Mail, Clock } from "lucide-react"
+import { FaWhatsapp } from "react-icons/fa";
 import { toast } from "sonner"
 import { sendContactEmail, type ContactFormData } from "@/actions/contact-actions"
 
@@ -81,21 +82,31 @@ export function Contact() {
       icon: MapPin,
       title: "Endereço",
       content: "Naviraí/MS, Brasil",
+      url: "https://www.google.com/maps/place/Navira%C3%AD+-+MS",
     },
     {
-      icon: Phone,
-      title: "Telefone",
-      content: "(67) 99999-9999",
+      icon: FaWhatsapp,
+      title: "WhatsApp - Rodrigo",
+      content: "(67) 99246-4374",
+      url: "https://wa.me/5567992464374",
+    },
+    {
+      icon: FaWhatsapp,
+      title: "WhatsApp - Helder",
+      content: "(67) 99977-3139",
+      url: "https://wa.me/5567999773139",
     },
     {
       icon: Mail,
       title: "E-mail",
-      content: "contato@agroclima.net",
+      content: "agroclima.net@gmail.com",
+      url: "mailto:agroclima.net@gmail.com",
     },
     {
       icon: Clock,
       title: "Horário",
-      content: "Seg-Sex: 8h às 18h",
+      content: "Seg-Sex: 7h às 17h",
+      url: null,
     },
   ]
 
@@ -120,7 +131,7 @@ export function Contact() {
             initial={{ opacity: 0, x: -50 }}
             animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="lg:col-span-2 space-y-6"
+            className="lg:col-span-2 space-y-4"
           >
             <div>
               <h3 className="text-2xl font-bold mb-6">Informações de Contato</h3>
@@ -130,25 +141,39 @@ export function Contact() {
               </p>
             </div>
 
-            {contactInfo.map((info, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                transition={{ duration: 0.8, delay: 0.4 + index * 0.1 }}
-                className="flex items-start space-x-4"
-              >
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <info.icon className="h-6 w-6 text-primary" />
+            {contactInfo.map((info, index) => {
+              const Wrapper = info.url ? motion.a : motion.div
+              const props = info.url
+                ? {
+                    href: info.url,
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                    className: "flex items-start space-x-4 transition-opacity hover:opacity-75 cursor-pointer",
+                  }
+                : {
+                    className: "flex items-start space-x-4",
+                  }
+
+              return (
+                <Wrapper
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                  transition={{ duration: 0.8, delay: 0.4 + index * 0.1 }}
+                  {...props}
+                >
+                  <div className="flex-shrink-0">
+                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                      <info.icon className="h-6 w-6 text-primary" />
+                    </div>
                   </div>
-                </div>
-                <div>
-                  <h4 className="font-semibold mb-1">{info.title}</h4>
-                  <p className="text-muted-foreground">{info.content}</p>
-                </div>
-              </motion.div>
-            ))}
+                  <div>
+                    <h4 className="font-semibold mb-1">{info.title}</h4>
+                    <p className="text-muted-foreground">{info.content}</p>
+                  </div>
+                </Wrapper>
+              )
+            })}
           </motion.div>
 
           {/* Contact Form - 3/5 */}
@@ -201,7 +226,7 @@ export function Contact() {
                         <FormItem>
                           <FormLabel>E-mail *</FormLabel>
                           <FormControl>
-                            <Input type="email" placeholder="seu@email.com" {...field} />
+                            <Input type="email" placeholder="seu-email@exemplo.com" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

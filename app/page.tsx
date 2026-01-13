@@ -30,7 +30,7 @@ export default function Home() {
   return (
     <main className="min-h-screen">
       <Hero />
-      <BrandCarousel />
+      {/** <BrandCarousel /> */}
       <About />
       <Features />
       <Pricing />

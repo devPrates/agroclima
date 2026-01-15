@@ -1,13 +1,14 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { sendEmailOtp } from "@/actions/auth-actions" // Reativado (OTP)
 import { toast } from "sonner"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { Loader2 } from "lucide-react"
+import { Loader2, Radio } from "lucide-react"
 import {
   InputOTP,
   InputOTPGroup,
@@ -15,6 +16,7 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp" // Reativado (OTP)
 import { Badge } from "@/components/ui/badge"
+import { IoIosArrowBack } from "react-icons/io";
 
 export default function LoginPage() {
   const router = useRouter()
@@ -120,9 +122,20 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md space-y-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">Entrar</h1>
-          <p className="text-sm text-muted-foreground">Digite seu email para entrar.</p>
+        <div className="flex justify-center">
+          <Image
+            src="/agroclima.png"
+            alt="Agroclima.NET"
+            width={130}
+            height={40}
+            priority
+          />
+        </div>
+        <div className="text-center space-y-2">
+          <h1 className="text-xl sm:text-2xl font-bold">Acessar painel de gerenciamento</h1>
+          <p className="text-sm text-muted-foreground px-2 sm:px-0">
+            Use o email da sua conta para entrar no painel de gerenciamento.
+          </p>
         </div>
 
         <div className="space-y-4 flex flex-col items-center">
@@ -188,6 +201,33 @@ export default function LoginPage() {
               </div>
             </div>
           )}
+          <div className="flex flex-col sm:flex-row w-full gap-3 mt-4">
+            <Button
+              asChild
+              variant="outline"
+              className="w-full sm:w-1/2 h-auto py-3 sm:py-2"
+            >
+              <a href="/" className="flex items-center gap-2 justify-center">
+                <IoIosArrowBack className="h-4 w-4 shrink-0" />
+                <span>Voltar ao início</span>
+              </a>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="w-full sm:w-1/2 h-auto py-3 sm:py-2"
+            >
+              <a
+                href="https://agroclima.net/hml/sbadmin2/login.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 justify-center"
+              >
+                <Radio className="h-4 w-4 shrink-0" />
+                <span>Acessar estações</span>
+              </a>
+            </Button>
+          </div>
         </div>
       </div>
     </div>

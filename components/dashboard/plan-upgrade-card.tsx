@@ -115,7 +115,7 @@ export function PlanUpgradeCard({
                 <span className="text-2xl font-semibold">R$ {billingCycle === "mensal" ? priceMonthly : priceAnnual}</span>
                 <span className="text-sm text-muted-foreground">{billingCycle === "mensal" ? "/mês" : "/ano"}</span>
               </div>
-              <AlertDialog>
+              {/* <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="outline" disabled={changing}>mudar plano</Button>
                 </AlertDialogTrigger>
@@ -129,6 +129,27 @@ export function PlanUpgradeCard({
                   <AlertDialogFooter>
                     <AlertDialogCancel>Voltar</AlertDialogCancel>
                     <AlertDialogAction onClick={handleChangePlan}>Confirmar</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog> */}
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline">Mudar plano</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Redirecionando para seleção de plano</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Você será redirecionado para a tela de seleção de plano e pagamento para concluir a alteração.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => {
+                        if (typeof window !== "undefined") {
+                          window.location.href = "/dashboard?tab=dashboard"
+                        }
+                    }}>Confirmar</AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>

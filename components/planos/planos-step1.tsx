@@ -83,8 +83,11 @@ export function PlanosStep1({ onComplete }: PlanosStep1Props) {
 
   return (
     <Card className="w-full max-w-4xl mx-auto shadow-lg">
-      <CardHeader className="px-6 py-6">
+      <CardHeader className="px-6 py-6 space-y-1">
         <CardTitle className="text-center text-2xl">Criar Conta</CardTitle>
+        <p className="text-center text-sm text-muted-foreground">
+          Preencha seus dados para criar sua conta e continuar.
+        </p>
       </CardHeader>
       <CardContent className="px-6 pb-6">
         <Form {...form}>

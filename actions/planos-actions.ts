@@ -78,7 +78,7 @@ async function sendWelcomeEmail(userData: { nome: string; email: string; plano: 
             
             <p style="color: #475569; line-height: 1.6; margin-bottom: 20px;">
               É com grande satisfação que damos as boas-vindas ao <strong>Agroclima.NET</strong>! 
-              Sua conta foi criada com sucesso e você já pode começar a aproveitar todos os recursos da nossa plataforma.
+              A partir de agora, você já pode acessar o painel de gerenciamento da sua conta e explorar os recursos disponíveis para o seu plano.
             </p>
             
             <div style="background-color: #f1f5f9; padding: 20px; border-radius: 8px; margin: 25px 0;">
@@ -88,11 +88,17 @@ async function sendWelcomeEmail(userData: { nome: string; email: string; plano: 
             </div>
             
             <p style="color: #475569; line-height: 1.6; margin-bottom: 30px;">
-              Para começar a usar a plataforma, clique no botão abaixo e faça seu primeiro login:
+              Para acessar o painel de gerenciamento da sua conta pela primeira vez, siga os passos abaixo:
             </p>
+
+            <ol style="color: #475569; line-height: 1.6; margin-bottom: 30px; padding-left: 20px;">
+              <li style="margin-bottom: 8px;">Clique no botão abaixo ou acesse <strong>https://www.agroclima.site/login</strong>.</li>
+              <li style="margin-bottom: 8px;">Informe o e-mail cadastrado (${userData.email}).</li>
+              <li style="margin-bottom: 8px;">Siga as instruções exibidas na tela para concluir seu primeiro acesso.</li>
+            </ol>
             
             <div style="text-align: center; margin: 30px 0;">
-              <a href="https://agroclima.net/" 
+              <a href="https://www.agroclima.site/login" 
                  style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); 
                         color: #ffffff; 
                         text-decoration: none; 

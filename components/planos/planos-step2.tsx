@@ -129,7 +129,11 @@ export function PlanosStep2({ planoData }: PlanosStep2Props) {
       <CardContent className="space-y-6 flex flex-col items-center text-center">
         {!showOtp ? (
           <div className="space-y-4 w-full">
-            <p className="text-sm text-muted-foreground">Sua conta foi criada.</p>
+            <div className="text-sm text-muted-foreground space-y-2">
+              <p>Sua conta foi criada com sucesso!</p>
+              <p>Agora você pode acessar as estações e começar a monitorar seu clima.</p>
+              <p>Para continuar com a seleção do plano e forma de pagamento, acesse o painel no botão abaixo.</p>
+            </div>
             <div className="flex justify-center">
               <Badge variant="secondary" className="px-3 py-1 text-sm">{email}</Badge>
             </div>

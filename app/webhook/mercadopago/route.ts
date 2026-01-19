@@ -2,6 +2,9 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { alterUserOnBackend, upsertUserFromApi } from "@/actions/user-actions"
 import { MercadoPagoConfig, Payment, PreApproval } from "mercadopago"
+import { Resend } from "resend"
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 function getQuery(url: string) {
   try {
@@ -50,6 +53,35 @@ function parseSessionsFromExternalReference(ref?: string): number | undefined {
 // Valida se um número pode ser usado como max_sessions
 function isValidSessions(n: any): n is number {
   return n === 2 || n === 3 || n === 5
+}
+
+async function notifyPaymentApproved(email: string, sessions?: number) {
+  const to = [process.env.NOTIFICATION_EMAIL_1, process.env.NOTIFICATION_EMAIL_2].filter(Boolean) as string[]
+  if (!to.length) return
+  const from = process.env.RESEND_FROM_EMAIL
+  if (!from) return
+  const subject = `Novo pagamento aprovado - ${email}`
+  const sessionsInfo =
+    typeof sessions === "number"
+      ? `<p>Quantidade de sessões associadas ao plano: <strong>${sessions}</strong></p>`
+      : ""
+  await resend.emails.send({
+    from,
+    to,
+    subject,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px;">
+          Novo pagamento confirmado - Agroclima.NET
+        </h2>
+        <p>O usuário <strong>${email}</strong> teve o plano atualizado como pagante.</p>
+        ${sessionsInfo}
+        <p style="color: #64748b; font-size: 14px; margin-top: 30px;">
+          Este é um email automático de notificação do sistema Agroclima.NET.
+        </p>
+      </div>
+    `,
+  })
 }
 
 export async function POST(req: Request) {
@@ -109,6 +141,7 @@ export async function POST(req: Request) {
         console.log("[MP] atualizando usuário como pagante", { email, sessions })
         await prisma.user.update({ where: { login: email }, data })
         console.log("[MP] usuário atualizado com sucesso", { email })
+        await notifyPaymentApproved(email, sessions)
       } catch (e) {
         console.error("[MP] falha ao atualizar usuário como pagante", { email, error: String(e) })
         try {
@@ -120,6 +153,7 @@ export async function POST(req: Request) {
             if (isValidSessions(sessions)) data2.max_sessions = sessions
             await prisma.user.update({ where: { login: email }, data: data2 })
             console.log("[MP] usuário atualizado após upsert", { email })
+            await notifyPaymentApproved(email, sessions)
           }
         } catch (e2) {
           console.error("[MP] retry de atualização após upsert falhou", { email, error: String(e2) })

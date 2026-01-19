@@ -10,6 +10,7 @@ import { ScrollIndicator } from "@/components/scroll-indicator"
 
 import BrandCarousel from "@/components/brand-carousel"
 import ChatBot from "@/components/chat-bot"
+import { WelcomeModal } from "@/components/welcome-modal"
 
 export default function Home() {
   useEffect(() => {
@@ -37,6 +38,7 @@ export default function Home() {
       <Contact />
       {/** <ChatBot /> */}  
       <ScrollIndicator />
+      <WelcomeModal />
     </main>
   )
 }
